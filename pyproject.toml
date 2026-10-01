@@ -1,0 +1,8 @@
+[project]
+name = "political-sim"
+version = "0.2.0"
+description = "A deterministic causal laboratory for controlled social experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
