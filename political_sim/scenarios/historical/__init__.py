@@ -1,1 +1,1 @@
-"""目录占位。本步不实现历史场景。"""
+"""Package placeholder. Historical scenarios are not implemented."""

@@ -1,7 +1,8 @@
-"""核心契约。
+"""Core contract.
 
-PR-7 起，下面这些句子的既有含义冻结。
-新机制只能加在它们之上。模拟器和测量层可以读取 WorldState。行动者不可以。
+From PR-7 onward, the existing meaning of the sentences below is frozen.
+A new mechanism may be added only on top of them. The simulator and the
+measurement layer may read WorldState. An actor may not.
 """
 
 from __future__ import annotations

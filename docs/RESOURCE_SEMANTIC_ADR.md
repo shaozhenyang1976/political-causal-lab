@@ -1,18 +1,18 @@
 # Resource Semantic Decision Record
 
-状态：**PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**
+Status: **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**
 
-本记录只列出必须先回答的问题。答案是 **UNDECIDED**。不选择语义，不写 Resource causal contract，不启动 PR-13。
+This record lists the questions that must be answered first. Every answer is **UNDECIDED**. No semantic interpretation is selected, no Resource causal contract is written, and PR-13 is not started.
 
-即使最后决定 Resource 只作为结果变量、不产生反馈，也可以不做 PR-13。
+PR-13 may remain unstarted even if Resource is later kept as an outcome variable with no feedback.
 
-进入实现之前，顺序是：本记录 → 独立讨论候选语义 → 选择唯一操作性定义 → Resource causal contract → 定义唯一新箭头 → 对照实验 → 测试 → 才可能有 PR-13。
+The order before any implementation is: this record, an independent discussion of candidate meanings, one operational definition, a Resource causal contract, one new arrow, a control experiment, tests, and only then a possible PR-13.
 
-操作性定义必须写成：Resource 表示 X；在本模型中，X 的操作性定义是 Y；因此 Resource 可以改变 Z，而不会改变 A/B/C。现实世界类比不能代替这句合同。
+An operational definition must be stated as: Resource denotes X; in this model, the operational definition of X is Y; therefore Resource may change Z and does not change A, B, or C. A real-world analogy does not replace that contract.
 
 The first causal meaning of Resource may add only one directed edge.
 
-| # | 问题 | 答案 |
+| # | Question | Answer |
 | --- | --- | --- |
 | 1 | What single meaning does Resource have? | UNDECIDED |
 | 2 | Why can admitted-action counts stand for that meaning? | UNDECIDED |

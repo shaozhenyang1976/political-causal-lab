@@ -1,4 +1,4 @@
-"""目录是否按本步边界建立。"""
+"""Whether the directories match the boundary of this step."""
 
 from __future__ import annotations
 

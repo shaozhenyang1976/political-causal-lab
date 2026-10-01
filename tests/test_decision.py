@@ -1,4 +1,4 @@
-"""PR-4：相同信念下，约束改变意图；意图不改变世界。"""
+"""PR-4: under the same belief, a constraint changes intent, and intent does not change the world."""
 
 from __future__ import annotations
 

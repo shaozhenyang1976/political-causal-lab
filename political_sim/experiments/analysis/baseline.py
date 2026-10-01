@@ -1,4 +1,4 @@
-"""从事件日志重建生成、收到的信号和意图。不运行模拟，也不写世界。"""
+"""Reconstructs generation, the received signal, and intent from the event log. Does not run the simulation and does not write the world."""
 
 from __future__ import annotations
 

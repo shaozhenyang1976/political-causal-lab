@@ -1,4 +1,4 @@
-"""PR-11：被接纳的行动只给行动者增加 1 单位资源。"""
+"""PR-11: an admitted action adds one resource unit to its actor."""
 
 from __future__ import annotations
 

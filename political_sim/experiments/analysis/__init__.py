@@ -1,4 +1,4 @@
-"""只读测量，以及四组基线运行。"""
+"""Read-only measurement, and the four baseline runs."""
 
 from political_sim.experiments.analysis.baseline import (
     ActorTick,

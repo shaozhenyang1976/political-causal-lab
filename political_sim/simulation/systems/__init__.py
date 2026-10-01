@@ -1,4 +1,4 @@
-"""Tick 槽位调用的系统。
+"""Systems called from tick slots.
 
-信息传递先生成信号，再按 q 做第一跳；information_forward 只原样转发。代表者决策只产生行动意图。
+Information is generated first, then the first hop scales it by q. Each later information_forward hop multiplies the received payload by fidelity. When fidelity is 1, those hops copy the payload unchanged. Representative decision produces an action intent only.
 """

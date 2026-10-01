@@ -1,8 +1,8 @@
-# 实验 1～4：当前模型可回答的问题边界
+# Experiments 1–4: Questions the Current Model Can Answer
 
-状态：FROZEN。PR-1～PR-12 冻结。132 项测试冻结。EventLog 冻结。实验 1～4 已关闭。模型规范、因果边界、可辨识边界、机制准入纪律冻结。文档规范已与实现对照。读写顺序和复现标准已写入 `docs/BASELINE_EXPERIMENT_SPEC.md`。护城河：无。原创性：未证明。竞争壁垒：未形成。PR-13 未开始。实验 5 不存在。下一项工作不预设。文档审计已收口，生产代码未改。
+Status: FROZEN. PR-1 through PR-12 are frozen. The 132 tests are frozen. The event log is frozen. Experiments 1 through 4 are closed. The model specification, the causal boundary, the identifiability boundary, and the mechanism-admission rule are frozen. The documents now correspond to the implementation. Read and write order, and the reproduction standard, are recorded in `docs/BASELINE_EXPERIMENT_SPEC.md`. There is no competitive moat. Originality is not established. A competitive barrier is not established. PR-13 has not started. Experiment 5 does not exist. The next task is not preset. The documentation audit is closed. Production code was not changed by that audit.
 
-## 自动传播停在哪里
+## Where automatic propagation stops
 
 ```text
 Reality
@@ -13,17 +13,17 @@ Generation
   ↓
 signal_generated
   │
-  │ q：仅第一跳
+  │ q: first hop only
   ↓
 first-hop received
   │
-  │ fidelity：仅后续 information_forward，
-  │            在同一拍逐跳累积
+  │ fidelity: later information_forward hops only,
+  │           accumulated hop by hop within the same tick
   ↓
 Trust Gate
   ├─ reject
   │    ↓
-  │  无 belief_updated
+  │  no belief_updated
   │    ↓
   │  intent = seek_information
   │  reason = trust_rejected
@@ -36,7 +36,7 @@ Trust Gate
        ↓
       Intent
        │
-       ╳  唯一显式提交断点
+       ╳  the only explicit-submission break
        ↓
      Action
        ↓
@@ -44,53 +44,53 @@ Trust Gate
        ↓
   action_consequence
        ↓
-   Resource +1             不回读 belief、intent，也没有反馈
+   Resource +1             does not read belief or intent, and there is no feedback
 ```
 
-三个已经实验确认的边界：
+Three boundaries confirmed by experiment:
 
-1. 信息损失可以改变 belief，但不保证改变 Intent。Intent 的离散变化发生在决策阈值上：均值大于 `0.5` 为 `support`，小于 `0.5` 为 `oppose`，等于 `0.5` 为 `abstain`。`1.0` 到 `0.5625` 时意图仍是 `baseline:support`。
-2. Trust 与 ConstraintPolicy 都在自动链内。Trust rejection 截断后续的信念写入和约束。ConstraintPolicy 只处理已经写入的 belief。
-3. Intent 到 Action 是唯一的显式提交断点。`support` 或 `oppose` 被接纳后，才自动产生 `Resource +1`。接纳事件本身是 `consequence=none`；`+1` 写在随后的 `action_consequence`。其他提交，例如 `abstain`，被拒绝，资源不变。Resource 结算不回读 belief 或 intent，目前没有反馈。
+1. Information loss can change belief and does not guarantee a change in intent. Intent changes discretely at the decision threshold: a mean above `0.5` is `support`, below `0.5` is `oppose`, and exactly `0.5` is `abstain`. From `1.0` to `0.5625`, intent remains `baseline:support`.
+2. Trust and ConstraintPolicy are both inside the automatic chain. Trust rejection cuts off the later belief write and the constraint. ConstraintPolicy handles only a belief that has already been written.
+3. Intent to Action is the only explicit-submission break. After `support` or `oppose` is admitted, `Resource +1` follows automatically. The admission event itself is `consequence=none`. The +1 is written by the subsequent `action_consequence`. Other submissions, such as `abstain`, are rejected and leave resource unchanged. Resource settlement does not read belief or intent. There is currently no feedback.
 
-`╳` 不是尚未实现。它是已经测量并确认的模型边界。
+The mark `╳` is not an unimplemented feature. It is a model boundary that has been measured and confirmed.
 
-## 已验证性质
+## Verified properties
 
-1. `e`、`q`、`fidelity` 不是同一个损失率，也不先加总再作用。生成机制是按阶段相乘。`e=0.25, q=0.75, fidelity=0.5` 的信号是 `0.75 × 0.75 × 0.5 × 0.5 × 0.5`。`fidelity` 的累积发生在同一拍的后续转发上。缺口的 telescoping 记账是结果差的分解，不是生成机制。
-2. 同一个最终信念可以有不同来源。`e=0.25, q=1` 与 `e=0, q=0.75` 的信念都是 `0.75`、意图都是 `support`，生成信号分别是 `0.75` 和 `1.0`。
-3. `q` 改变收到的数。`trust` 决定这个数是否写入信念。`q=0` 且采信，是已写入的信念 `0`，意图 `baseline:oppose`。`q=0` 且拒绝，received 也是 `0`，信念不存在，原因是 `trust_rejected`。数值为 0 和没有信念记录是两个状态。
-4. 信任拒绝先于 ConstraintPolicy。`trust=0` 时，`seek_information` 与 `delay` 的事件签名相同，因为约束没有执行。采信后，信念可以同为 `1.0`，意图原因分别是 `constraint:seek_information` 与 `constraint:delay`。
-5. 意图类型和原因分开。拒绝与“采信后受 `seek_information` 约束”都带有寻求信息的记录。前者没有信念，原因是 `trust_rejected`。后者信念为 `1.0`，原因是 `constraint:seek_information`。无约束采信则是信念 `1.0`、`baseline:support`。
-6. 信念或意图的变化本身不产生资源。上列从 `support` 到 `abstain` 再到 `oppose`，只要没有显式提交可接纳行动，就没有 `action_accepted`，资源保持 `{}`。
-7. 显式行动是另一道门。意图为 `support` 时提交 `oppose`，仍然接纳，资源 `R1=1.0`。同一份提交在阈值两侧得到相同的接纳和相同的资源。
-8. Intent 类型与可接纳 Action 类型不是一一对应。`belief=0.5` 时意图是 `abstain`；提交 `abstain` 被拒绝，原因是 `unknown action type`，资源仍是 `{}`。当前可接纳行动只有 `support` 和 `oppose`。
+1. `e`, `q`, and `fidelity` are not one loss rate, and they are not added before they act. The generative mechanism multiplies by causal position. For `e=0.25`, `q=0.75`, and `fidelity=0.5`, the signal is `0.75 × 0.75 × 0.5 × 0.5 × 0.5`. Fidelity accumulates on later forwards within the same tick. The telescoping gap account decomposes a difference in results. It is not the generative mechanism.
+2. The same final belief can have different sources. `e=0.25, q=1` and `e=0, q=0.75` both yield belief `0.75` and intent `support`. The generated signals are `0.75` and `1.0`.
+3. `q` changes the received number. `trust` decides whether that number is written into belief. With `q=0` and admission, the stored belief is `0` and the intent is `baseline:oppose`. With `q=0` and rejection, received is also `0`, no belief record exists, and the cause is `trust_rejected`. A numeric value of 0 and the absence of a belief record are two states.
+4. Trust rejection precedes ConstraintPolicy. At `trust=0`, the event signatures for `seek_information` and `delay` are identical, because the constraint does not run. After admission, belief can be `1.0` in both cases while the intent causes are `constraint:seek_information` and `constraint:delay`.
+5. Intent type and cause are separate. Rejection and “admitted, then constrained by `seek_information`” both carry a seek-information record. The first has no belief and cause `trust_rejected`. The second has belief `1.0` and cause `constraint:seek_information`. Unconstrained admission is belief `1.0` and `baseline:support`.
+6. A change in belief or intent does not itself produce resource. Along the path from `support` to `abstain` to `oppose`, there is no `action_accepted` and resource remains `{}` unless an admissible action is submitted explicitly.
+7. Explicit action is a second gate. Submitting `oppose` while intent is `support` is still admitted, and resource becomes `R1=1.0`. The same submission yields the same admission and the same resource on both sides of the threshold.
+8. The set of intent types and the set of admissible action types are not in one-to-one correspondence. At `belief=0.5`, intent is `abstain`. Submitting `abstain` is rejected with reason `unknown action type`, and resource remains `{}`. The only admissible actions are `support` and `oppose`.
 
-## 这四问已经回答
+## The four questions are answered
 
-| 实验 | 问题 | 答案 |
+| Experiment | Question | Answer |
 |---|---|---|
-| 1 | 三种信息损失合并后，是否仍按因果位置分阶段？ | 是 |
-| 2 | 低质量与低信任是否走不同路径？ | 是 |
-| 3 | Trust 与 ConstraintPolicy 同时存在时，执行顺序能否分开“未采信”和“已形成信念但受约束”？ | 能 |
-| 4 | 信息损失是否自动传到 Action 或 Resource？ | 否 |
+| 1 | When the three information losses are combined, do they still act by causal position? | Yes |
+| 2 | Do low quality and low trust follow different paths? | Yes |
+| 3 | When trust and ConstraintPolicy are both present, can execution order separate “not admitted” from “belief formed, then constrained”? | Yes |
+| 4 | Does information loss propagate automatically to Action or Resource? | No |
 
-四问都由现有模型回答。没有出现机制缺口，也没有出现 EventLog 不足以回答该问的情况。不因此启动 PR-13。
+The current model answers all four. No phenomenon appeared that the model cannot explain, and the event log was sufficient for each question. PR-13 is not started on that account.
 
-## 项目纪律
+## Project discipline
 
-这是一个可实验的因果实验室。一次只提出一个研究问题。现有模型能回答，就做实验并记录结论。不能回答，就检查这是不是当前问题的不可辨识。不阻碍，就记录边界，不加机制。阻碍，才审查最小必要的新因果边。模型不以“现实世界还缺什么”为待办。模型只以“当前研究问题还无法回答什么”为待办。不规划下一阶段。下一步不预设。
+This is an experimental causal laboratory. One research question is posed at a time. If the current model can answer it, run the experiment and record the conclusion. If it cannot, check whether the obstacle is non-identifiability for that question. If the non-identifiability does not block the question, record the boundary and add no mechanism. If it does, review the smallest necessary new causal edge. The model’s backlog is not “what the real world still lacks.” The backlog is “what the current research question still cannot answer.” No next stage is planned. The next task is not preset.
 
-`information_forward` 是信息传递的拓扑参数，不是社会层。
+`information_forward` is a topological parameter of information transmission. It is not a social layer.
 
-Group 是现有 Reality 生成机制可以读取的结构。代表边上的群体，其成员的偏好与能力可以参与聚合，并形成生成信号。该读取属于 Reality → Generation 的既有路径。信号此后仍要经过传输和信任采信，才可能写入信念。这不构成 `Group → Belief`、`Group → Intent` 或其他新的社会因果边。组织、派系、制度目前不进入信息传递、信任采信、信念更新、意图生成或资源结算路径。
+Group is a structure that the existing Reality-generation mechanism may read. On a representation edge, the preferences and capabilities of the group’s members may enter the aggregate and form the generated signal. That read belongs to the existing Reality → Generation path. The signal must still pass transmission and trust admission before it can be written as belief. This is not a `Group → Belief` edge, a `Group → Intent` edge, or any other new social causal edge. Organizations, factions, and institutions do not currently enter information transmission, trust admission, belief update, intent, or resource settlement.
 
-三条正式边界：
+Three formal boundaries:
 
-1. Group 不等于群体机制。Group 进入 Reality → Generation，再经 Transmission、Trust、Belief，才到 Intent。这是既有路径，不是群体对 Belief、Intent 或 Action 的社会反馈。
-2. State persistence 不等于 feedback。生成不读取信念、意图、行动或资源；决策不读取资源。本拍未发生信任拒绝时，决策可以读取观察者当前存储的信念；若本拍已经采信，则读取的是本拍刚写入的信念，形成同一 Tick 内的 Belief → Intent。若本拍没有替换该信念，意图仍可依据留存信念计算。该读取不会回到 Generation，因此不形成跨 Tick 的反馈或路径依赖。参数不变且信号每拍被重写时，长期运行仍只是同一结果的重复。
-3. 轨迹相同不等于自动的机制缺口。轨迹相同只说明可能不可辨识。不阻碍当前研究问题，就记录边界。阻碍，才审查最小必要的新边。
+1. Group is not a group mechanism. Group enters through Reality → Generation, then Transmission, Trust, and Belief, and only then Intent. That is the existing path. It is not social feedback from the group onto Belief, Intent, or Action.
+2. State persistence is not feedback. Generation does not read belief, intent, action, or resource. Decision does not read resource. When this tick did not reject on trust, decision may read the belief currently stored for the observer. If this tick admitted a signal, the belief just written in this tick is what is read, and that is Belief → Intent inside one tick. If this tick did not replace the belief, intent may still be computed from the stored belief. That read does not return to Generation, so it does not create cross-tick feedback or path dependence. When parameters are constant and the signal is rewritten every tick, a long run repeats the same result.
+3. An identical trajectory is not an automatic mechanism gap. An identical trajectory means the paths may be non-identifiable. If that does not block the current research question, record the boundary. If it does, review the smallest necessary new edge.
 
-以后的开发提案只问一句：当前明确的研究问题，现有模型为什么回答不了？回答不出来，就不进入开发。回答得出来，就做实验并记录结果。当前没有下一项工作。没有下一项工作，是这一阶段的正确状态。
+A later development proposal is asked one question: why can the current model not answer this stated research question? If that cannot be answered, development does not start. If it can, run the experiment and record the result. There is no next task. Having no next task is the correct state of this stage.
 
-可复制性和护城河不是同一个目标。因果实验室的成功是别人能按公开规范重做同一个干预，并得到相同的因果轨迹和结论。跨实现不要求事件字符串逐字相同。132 项测试锁定的是当前这份实现的回归契约。操作步骤见 `docs/BASELINE_EXPERIMENT_SPEC.md` 的当前实现对照。商业护城河追求的是别人难以复制价值。目前不解决这两者的张力。现在没有护城河，也不为建立护城河而改变模型。要守住的是少边、确定性、可追踪、可辨识性审计和逐边准入。实验记录尚不足以构成复制壁垒。不为了积累资产而生产实验。研究者生态、benchmark 和平台不是当前内核的路线。ABM、反事实实验、可复现和因果推断都不是原创卖点。上述纪律组合的原创性尚未证明，竞争壁垒尚未形成。
+Reproducibility and a competitive moat are not the same objective. A causal laboratory succeeds when someone else can repeat the same intervention from the public specification and obtain the same causal trace and the same conclusion. Cross-implementation reproduction does not require event strings to match character for character. The 132 tests lock the regression contract of this implementation. The procedure is in the implementation correspondence section of `docs/BASELINE_EXPERIMENT_SPEC.md`. A commercial moat aims at value that others cannot readily copy. That tension is not resolved here. There is no moat, and the model is not changed in order to build one. What is maintained is a small edge set, deterministic execution, traceability, an identifiability audit, and edge-by-edge admission. The experimental record is not yet a barrier to copying. Experiments are not manufactured in order to accumulate assets. A researcher platform, a benchmark program, and a hosted service are not the route of this kernel. Agent-based modeling, counterfactual experiments, reproducibility, and causal inference are not original selling points. Originality of this combination of disciplines is not established, and a competitive barrier is not established.

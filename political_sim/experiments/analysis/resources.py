@@ -1,4 +1,4 @@
-"""从事件日志核对资源守恒。不运行模拟，也不写世界。"""
+"""Checks resource conservation from the event log. Does not run the simulation and does not write the world."""
 
 from __future__ import annotations
 

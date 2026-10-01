@@ -1,10 +1,10 @@
-# 基线实验规范
+# Baseline Experiment Specification
 
-状态：**CORE BASELINE — FROZEN**
+Status: **CORE BASELINE — FROZEN**
 
-PR-8 采信门槛单独冻结为 **PR-8 TRUST GATE — FROZEN**。PR-9 后续转发冻结为 **PR-9 FIDELITY — FROZEN**。二者都加在控制条件之上，不改写下面这些 PR-7 含义。其后的显式行动只把资源作为终端结果，不改写这些含义。信任学习和关系网络仍未进入。
+The PR-8 admission gate is frozen separately as **PR-8 TRUST GATE — FROZEN**. Later forwarding is frozen as **PR-9 FIDELITY — FROZEN**. Both sit on top of the control conditions and do not rewrite the PR-7 meanings below. Explicit actions added after that treat resource as a terminal outcome and do not rewrite those meanings. Trust learning and relationship networks have not entered.
 
-冻结范围：
+Frozen scope:
 
 - Reality / Belief separation
 - Actor information boundary
@@ -20,9 +20,9 @@ PR-8 采信门槛单独冻结为 **PR-8 TRUST GATE — FROZEN**。PR-9 后续转
 - Tick ordering
 - Event-based measurement
 
-本冻结不把 trust 算进信念误差。`fidelity = 1` 时后续转发与 PR-8 相同，因此那时 `transmission_gap` 仍为 0。上面这份 PR-7 控制清单不包含动态 trust、accountability 或 concealment。显式提交的行动和资源后果在 PR-10、PR-11，不改写这里的信息—意图含义。PR-8 的门槛是后来加上的一层，默认通过时控制条件保持原样。
+This freeze does not count trust as belief error. When `fidelity = 1`, later forwarding matches PR-8, so `transmission_gap` remains 0. The PR-7 control list above does not include dynamic trust, accountability, or concealment. Explicitly submitted actions and the resource consequence are specified in PR-10 and PR-11. They do not rewrite the information-to-intent meanings here. The PR-8 gate was added later. When it passes by default, the control conditions stay as they were.
 
-## 控制条件
+## Control conditions
 
 ```text
 P
@@ -40,7 +40,7 @@ ConstraintPolicy
 Intent
 ```
 
-已经确认的因果：
+Causal relations already established:
 
 ```text
 generation error  → belief error
@@ -51,21 +51,21 @@ Reality change     → next-Tick belief
 Belief change      → same-Tick intent
 ```
 
-## 信息质量
+## Information quality
 
 information_quality = 1 does not mean the signal is true. It means the system does not further reduce an already generated signal.
 
-`q = 1` 只表示系统不再降低已经生成的信号。它不表示信念等于真实偏好。因此 `P = 0.8`、`e = 0.2`、`q = 1` 时，生成信号、收到的信号和信念都停留在 `G(p, e)`，真实偏好仍是 `0.8`。
+`q = 1` means only that the system does not further reduce a signal that has already been generated. It does not mean that belief equals true preference. With `P = 0.8`, `e = 0.2`, and `q = 1`, the generated signal, the received signal, and the belief all remain at `G(p, e)`. True preference remains `0.8`.
 
-## 生成误差
+## Generation error
 
 G(p, e) = clamp(p - e, 0, 1)
 
-`e` 是信号生成过程的系统实验参数，默认 `0`。它只作用于偏好的五个分量，不抽随机数，不修改真实偏好，也不修改能力信号。
+`e` is a system experiment parameter of signal generation. The default is `0`. It applies only to the five preference components. It draws no random number, does not modify true preference, and does not modify the capability signal.
 
-`e` 不是行动者偏见，不是有意扭曲，也不是 trust。`e < 0` 直接拒绝。
+`e` is not actor bias, intentional distortion, or trust. `e < 0` is rejected.
 
-输入域：
+Input domain:
 
 ```text
 p = 0, e > 0 → 0
@@ -74,65 +74,65 @@ p = 0.2, e = 0.5 → 0
 e = 0 → p
 ```
 
-## 误差分解
+## Error decomposition
 
-直接观察者：
+For the direct observer:
 
 ```text
 belief_gap = generation_gap + quality_gap + transmission_gap
 ```
 
-`fidelity = 1` 时 `transmission_gap = 0`。信念误差归因于生成误差和第一跳质量缩减。跳数本身只决定信号到达谁，不改变载荷。只有显式 `fidelity < 1` 才让后续跳变小。
+When `fidelity = 1`, `transmission_gap = 0`. Belief error is then attributed to generation error and the first-hop quality reduction. Hop count determines who receives the signal. It does not change the payload. Only an explicit `fidelity < 1` reduces later hops.
 
-`generation_gap` 是真实群体信号到 `signal_generated` 的距离。`quality_gap` 是生成信号到第一跳收到值的距离。`fidelity = 1` 时，后续跳复制该收到值。
+`generation_gap` is the distance from the true group signal to `signal_generated`. `quality_gap` is the distance from the generated signal to the first-hop received value. When `fidelity = 1`, later hops copy that received value.
 
-## 基线
+## Baselines
 
-固定真实偏好 `P = 1`，一次只动一个因素。
+True preference is fixed at `P = 1`. One factor moves at a time.
 
-- 生成误差：`e = 0, 0.1, 0.25, 0.5`，`q = 1`，一跳
-- 信息质量：`q = 1, 0.75, 0.5, 0`，`e = 0`，一跳
-- 跳数：1 到 4 跳，`e = 0.25`，`q = 0.5`
-- 约束：信念不变，只更换 `ConstraintPolicy`
+- Generation error: `e = 0, 0.1, 0.25, 0.5`, `q = 1`, one hop
+- Information quality: `q = 1, 0.75, 0.5, 0`, `e = 0`, one hop
+- Hops: 1 through 4, `e = 0.25`, `q = 0.5`
+- Constraints: belief held fixed, `ConstraintPolicy` changed
 
-## 时间尺度
+## Time scale
 
-| 因果路径 | 当前实现 | 依据 |
+| Causal path | Current implementation | Basis |
 | --- | --- | --- |
-| Reality → Belief | 干预真实偏好后，下一次生成才使用新偏好。同一拍内，意图看到的是本拍 `belief_update` 之后的信念 | 代码：`information_generation` 先于 `political_action`；`intervene_preference` 记在当前 tick |
-| Belief → Intent | 同一 Tick | 代码：`representative_decision` 在 `belief_update` 之后 |
-| Intent → Action | 显式提交边界。没有提交就没有 `action_accepted` | 代码，以及实验 4 |
-| Action → Consequence | `action_accepted` 不改 WorldState；随后 `action_consequence` 给行动者资源 +1 | 代码，以及 PR-11 |
+| Reality → Belief | After a true-preference intervention, the next generation uses the new preference. Within a tick, intent sees the belief written by that tick's `belief_update` | Code: `information_generation` precedes `political_action`; `intervene_preference` is recorded on the current tick |
+| Belief → Intent | Same tick | Code: `representative_decision` follows `belief_update` |
+| Intent → Action | Explicit-submission boundary. No submission means no `action_accepted` | Code, and Experiment 4 |
+| Action → Consequence | `action_accepted` does not change WorldState. The following `action_consequence` adds 1 to the actor's resource | Code, and PR-11 |
 
-同一 Tick 的顺序是 `signal_generated`、传输、`belief_updated` 或 `trust_rejected`、`action_intent`，然后才是被提交的行动。意图看到的是本 Tick 已经更新的信念；信任拒绝时不读取信念来决定意图。
+Within one tick the order is `signal_generated`, transmission, `belief_updated` or `trust_rejected`, `action_intent`, and only then a submitted action. Intent sees the belief already updated in that tick. On trust rejection, intent is not computed by reading the stored belief.
 
-`Reality → Belief` 的延迟是：真实偏好写入干预事件之后，旧信念保持到下一次信念更新。`Constraint = delay` 是决策约束，不是这个延迟。两者分开记录。
+The Reality → Belief delay is this: after true preference is written by an intervention event, the old belief remains until the next belief update. `Constraint = delay` is a decision constraint, not that delay. The two are recorded separately.
 
 ## PR-8 trust gate
 
-状态：**PR-8 TRUST GATE — FROZEN**
+Status: **PR-8 TRUST GATE — FROZEN**
 
-Trust 是进入 DecisionContext 之前的采信门槛，不是第四种信念误差，也不是 `q` 或 `e` 的另一种缩放。`RepresentationEdge.trust` 仍然只被保存，不参与生成、第一跳或转发。实验参数 `t` 与边上的 `trust` 字段不是同一个机制。
+Trust is an admission gate before DecisionContext. It is not a fourth kind of belief error, and it is not another scaling of `q` or `e`. `RepresentationEdge.trust` is stored only. It does not enter generation, the first hop, or forwarding. The experiment parameter `t` and the edge field `trust` are not the same mechanism.
 
 ```text
 received = q × G(p, e)
-forward 复制 received
+forward copies received
 
-t ≥ τ：belief = received，然后才进入 ConstraintPolicy
-t < τ：不把 received 写入 belief，也不删除已有 belief
-        intent = seek_information
-        cause = trust_rejected
+t ≥ τ: belief = received, and only then ConstraintPolicy
+t < τ: received is not written into belief, and an existing belief is not deleted
+       intent = seek_information
+       cause = trust_rejected
 ```
 
-默认 `t = 1`、`τ = 0.5`，因此 `t ≥ τ`，控制条件与 PR-7 相同。`t = τ` 也采信。
+The defaults are `t = 1` and `τ = 0.5`, so `t ≥ τ` and the control conditions match PR-7. `t = τ` also admits.
 
-三条拒绝语义：
+Three rejection distinctions:
 
 - trust rejection ≠ belief error
 - trust rejection ≠ constraint delay
 - trust rejection ≠ no information
 
-以后的机制不能破坏这六条：
+Later mechanisms must not break these six clauses:
 
 1. Trust does not change signal_generated.
 2. Trust does not change received.
@@ -141,104 +141,102 @@ t < τ：不把 received 写入 belief，也不删除已有 belief
 5. trust_rejected is not part of belief_gap.
 6. trust_rejected is not constraint:delay or no_belief.
 
-`trust_rejected` 不是 `constraint:delay`，也不是 `no_belief`。拒绝发生在决策政策之前：即使同时设了 `delay`，原因仍是 `trust_rejected`。通过门槛之后，`delay` 才按原来的决策政策生效。没有收到信号时，原因仍是 `no_belief`。
+`trust_rejected` is not `constraint:delay` and not `no_belief`. Rejection occurs before the decision policy. Even if `delay` is also set, the cause remains `trust_rejected`. After the gate is passed, `delay` takes effect under the original decision policy. When no signal is received, the cause remains `no_belief`.
 
-已有信念在拒绝后保持原值。不采信不会把信念写成 `0`，也不会写成收到的信号。日志里的 `trust_rejected` 事件带有 received，`state_change` 为空。
+An existing belief keeps its value after rejection. Non-admission does not write the belief as `0` and does not write it as the received signal. The `trust_rejected` event carries received, and `state_change` is empty.
 
-不把 trust 加进 `belief_gap`。`belief_gap = generation_gap + quality_gap + transmission_gap` 仍然只描述被采信之后的信念数值。测量上分开三件事：信号已经生成、信号已经收到、信念有没有被这次收到的信号替换。
+Trust is not added to `belief_gap`. `belief_gap = generation_gap + quality_gap + transmission_gap` still describes only the numeric belief after admission. Measurement keeps three facts separate: the signal was generated, the signal was received, and whether this receipt replaced the belief.
 
 ## PR-9 fidelity
 
-状态：**PR-9 FIDELITY — FROZEN**
+Status: **PR-9 FIDELITY — FROZEN**
 
-Fidelity 是后续 `information_forward` 上的显式实验参数，不是 `RepresentationEdge.fidelity`，也不改变 trust。
+Fidelity is an explicit experiment parameter on later `information_forward` hops. It is not `RepresentationEdge.fidelity`, and it does not change trust.
 
 Each information_forward hop multiplies the already received payload by fidelity. The first hop does not. fidelity = 1 leaves that payload unchanged.
 
-`fidelity = 1` 时，生成信号、第一跳 received、后续载荷、信念、意图、拒绝原因和事件顺序都与 PR-8 相同。跳数本身仍然不造成衰减。只有 `fidelity < 1` 才让后续跳的载荷变小，并允许下游的 `transmission_gap > 0`。第一跳、生成误差、采信门槛和 `ConstraintPolicy` 都不变。直接观察者没有经过 forwarding，因此其 `transmission_gap` 仍为 0。`estimated_information` 保持为 `q`，不随后续 fidelity 连乘下降。
+When `fidelity = 1`, the generated signal, the first-hop received value, later payloads, belief, intent, the rejection reason, and event order all match PR-8. Hop count still does not attenuate. Only `fidelity < 1` reduces the payload of later hops and permits `transmission_gap > 0` downstream. The first hop, generation error, the admission gate, and `ConstraintPolicy` are unchanged. The direct observer does not pass through forwarding, so that observer's `transmission_gap` remains 0. `estimated_information` stays equal to `q`. It does not fall as later fidelity factors accumulate.
 
-每个机制只作用在自己的因果层：
+Each mechanism acts only on its own causal layer:
 
 1. e does not modify q, fidelity, or trust.
 2. q does not modify fidelity or trust.
 3. fidelity does not modify q or trust.
 4. trust does not modify signal or received values.
 
-不在这一步加入信任变化或信任学习。
+Trust change and trust learning are not added in this step.
 
 ## PR-10 action boundary
 
-状态：**PR-10 ACTION BOUNDARY — FROZEN**
+Status: **PR-10 ACTION BOUNDARY — FROZEN**
 
-这一步只回答三件事，不加入政治制度，也不产生后果。
+This step answers three questions. It adds no political institution and produces no consequence.
 
-1. 只有 `support` 和 `oppose` 可以从意图进入行动。`abstain`、`delay`、`seek_information` 仍只是意图。
-2. 行动必须被显式提交。`ActionResolver` 在引用有效时接纳它，并记下 `action_accepted`。意图事件不会自动变成行动。
-3. `action_accepted` 不改变 `WorldState`。该事件的 `state_change` 为空。资源写入不在本节，见 PR-11。
+1. Only `support` and `oppose` may pass from intent into action. `abstain`, `delay`, and `seek_information` remain intents.
+2. An action must be submitted explicitly. `ActionResolver` admits it when the references are valid and records `action_accepted`. An intent event does not become an action by itself.
+3. `action_accepted` does not change `WorldState`. That event's `state_change` is empty. The resource write is not in this section. See PR-11.
 
-因此仍然是：
+Therefore:
 
 - Intent ≠ Action
 - Action ≠ Consequence
 
-`vote` 及其他尚未定义后果的行动类型继续被拒绝，原因仍是 `action effect is not implemented`。没有提交行动时，事件顺序与 PR-9 相同。
+`vote` and other action types whose consequences are not defined continue to be rejected with the reason `action effect is not implemented`. With no submitted action, event order matches PR-9.
 
 ## PR-11 consequence
 
-状态：**PR-11 CONSEQUENCE — FROZEN**
+Status: **PR-11 CONSEQUENCE — FROZEN**
 
-这一步只打开一条箭头：被接纳的行动产生一个后果。
+This step opens one arrow: an admitted action produces one consequence.
 
 An admitted action adds one resource unit to its actor. The addition does not change preferences, beliefs, information, fidelity, or trust.
 
-接纳事件保持原样：`action_accepted` 的 `state_change` 仍为空，`available_information` 仍是 `consequence=none`。随后单独写下 `action_consequence`，才把行动者的资源增加 1。`support` 和 `oppose` 使用同一条后果。目标、偏好、信念、生成、转发和采信都不因这条后果改变。
+The admission event stays as it was. `action_accepted` still has an empty `state_change`, and `available_information` is still `consequence=none`. A separate `action_consequence` event then adds 1 to the actor's resource. `support` and `oppose` share that consequence. The target, preferences, beliefs, generation, forwarding, and admission are unchanged by it.
 
-没有被接纳的行动不产生后果。没有提交行动时，世界和事件都与 PR-10 相同。
+An action that is not admitted produces no consequence. With no submitted action, the world and the event log match PR-10.
 
-不在这一步加入信任变化、关系变化、信息变化、声誉或组织后果。
+Trust change, relationship change, information change, reputation, and organizational consequences are not added in this step.
 
-`resources + 1` 不进入生成、信念或意图。下一拍的 `signal_generated` 和 `belief_updated` 仍与没有提交行动时相同。因此这条箭头是 `Action → Resource`，还不是 `Action → Resource → future behavior`。
+`resources + 1` does not enter generation, belief, or intent. The next tick's `signal_generated` and `belief_updated` match the run that submitted no action. The arrow is therefore `Action → Resource`, not `Action → Resource → future behavior`.
 
 ## PR-12 resource conservation
 
-状态：**PR-12 RESOURCE CONSERVATION — FROZEN**
+Status: **PR-12 RESOURCE CONSERVATION — FROZEN**
 
-这一步只测量资源守恒，不选择资源进入哪一个因果层。
+This step measures resource conservation. It does not assign resource to a causal layer.
 
 resources_before + accepted_actions = resources_after
 
-四种结果固定为：
+The four outcomes are fixed:
 
 1. rejected_action adds 0 resources.
 2. no_action adds 0 resources.
 3. support adds 1 resource.
 4. oppose adds 1 resource.
 
-资源仍然不影响行动可用性、决策约束、信息获取、偏好、信任或组织位置。账本定义见 `docs/RESOURCE_SEMANTICS.md`。当前正式名称是 **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**。`Resource → ?` 保持断开。PR-13 暂不启动。语义决策记录见 `docs/RESOURCE_SEMANTIC_ADR.md`，答案尚未作出。
+Resource still does not affect action availability, decision constraints, information access, preference, trust, or organizational position. The ledger definition is in `docs/RESOURCE_SEMANTICS.md`. The official name is **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**. `Resource → ?` stays disconnected. PR-13 is not started. The semantic decision record is `docs/RESOURCE_SEMANTIC_ADR.md`. Its answers have not been made.
 
-## 当前实现对照
+## Implementation correspondence
 
-本节只记录代码里已经执行的路径。空槽位表示该阶段存在但函数为空。实验 1～4 没有逐槽位重测空阶段。
+This section records only paths that the code executes. An empty slot means the phase exists and its function is empty. Experiments 1 through 4 did not retest each empty phase.
 
-Tick 顺序来自 `political_sim/simulation/tick_processor.py` 的 `TICK_PHASES`。17 个槽位依次是：`environment_update`、`information_generation`、`information_transmission`、`belief_update`、`incentive_update`、`coalition_evaluation`、`representative_decision`、`organization_decision`、`political_action`、`conflict_bargaining`、`resource_allocation`、`power_recalculation`、`representation_update`、`network_update`、`survival_replacement`、`metrics`、`event_log`。
+Tick order is `TICK_PHASES` in `political_sim/simulation/tick_processor.py`. The seventeen slots, in order, are `environment_update`, `information_generation`, `information_transmission`, `belief_update`, `incentive_update`, `coalition_evaluation`, `representative_decision`, `organization_decision`, `political_action`, `conflict_bargaining`, `resource_allocation`, `power_recalculation`, `representation_update`, `network_update`, `survival_replacement`, `metrics`, and `event_log`.
 
-有执行体的只有六段：
+Only six phases have an execution body:
 
-| 阶段 | 读取 | 写入 |
+| Phase | Reads | Writes |
 | --- | --- | --- |
-| `information_generation` | 代表边、群体成员的偏好与能力；`capabilities.influence` 只进入聚合权重 `0.5 + 0.5 * influence` | 事件 `signal_generated`。不改真实偏好，不读信念、资源、组织、派系、制度 |
-| `information_transmission` | 本拍生成信号、`information_quality`、`fidelity`、`kind = information_forward` 的链接 | 不改 WorldState。内容冲突时记 `transmission_ambiguous`，该对不进入本拍交付。不读边上的 `fidelity` 或 `trust` |
-| `belief_update` | 本拍交付、全局 `trust` 与 `trust_threshold` | `t ≥ τ` 时写入信念并记 `belief_updated`。`t < τ` 时记 `trust_rejected`，不覆盖已有信念 |
-| `representative_decision` | 本拍拒绝表；未拒绝时读取该代表当前存储的信念、约束和 `ConstraintPolicy` | 只记 `action_intent`。不读资源，不改 WorldState |
-| `political_action` | 本拍开始前已经 `submit` 的行动，以及行动者、目标是否存在 | `support` / `oppose`：先 `action_accepted`（`consequence=none`，`state_change` 空），再 `action_consequence`（该行动者资源 +1）。其余已知类型拒绝，原因 `action effect is not implemented`。未知类型拒绝，原因 `unknown action type` |
-| `event_log` | 无 | 只记 `tick_completed` |
+| `information_generation` | Representation edges and the preferences and capabilities of group members. `capabilities.influence` enters only the aggregation weight `0.5 + 0.5 * influence` | The `signal_generated` event. True preferences are not modified. Beliefs, resources, organizations, factions, and institutions are not read |
+| `information_transmission` | This tick's generated signals, `information_quality`, `fidelity`, and links whose `kind` is `information_forward` | WorldState is not modified. Conflicting payloads record `transmission_ambiguous`, and that pair is not delivered this tick. Edge `fidelity` and edge `trust` are not read |
+| `belief_update` | This tick's deliveries and the global `trust` and `trust_threshold` | When `t ≥ τ`, the belief is written and `belief_updated` is recorded. When `t < τ`, `trust_rejected` is recorded and an existing belief is not overwritten |
+| `representative_decision` | This tick's rejection table. If the observer was not rejected, the belief currently stored for that representative, the constraints, and `ConstraintPolicy` | An `action_intent` event only. Resources are not read. WorldState is not modified |
+| `political_action` | Actions already `submit`ted before the tick, and whether the actor and targets exist | For `support` and `oppose`: `action_accepted` first (`consequence=none`, empty `state_change`), then `action_consequence` (the actor's resource increases by 1). Other known types are rejected with `action effect is not implemented`. Unknown types are rejected with `unknown action type` |
+| `event_log` | Nothing | A `tick_completed` event only |
 
-其余 11 个槽位是空函数。资源 +1 发生在 `political_action`，不发生在 `resource_allocation`。
+The other eleven slots are empty functions. The resource increment of 1 occurs in `political_action`, not in `resource_allocation`.
 
-参数是一次运行的全局数：`generation_error`、`information_quality`、`fidelity`、`trust`、`trust_threshold`，都要求落在 `[0, 1]`。`decision_constraints` 按行动者给出。信息、采信、意图和资源结算不消耗随机流。
+The run-level parameters are `generation_error`, `information_quality`, `fidelity`, `trust`, and `trust_threshold`. Each must lie in `[0, 1]`. `decision_constraints` are supplied per actor. Information, admission, intent, and resource settlement do not consume the random stream.
 
-复现同一次干预：使用同一 `WorldState`、同一上述参数、同一提交序列，调用 `SimulationEngine.run`。比较因果轨迹时对齐事件类型、原因、信念是否写入、意图原因和资源差额。跨实现不要求事件字符串逐字相同。当前 132 项测试锁定的是这一份 Python 实现的回归契约，包括它自己的事件文本。
+To reproduce an intervention, use the same `WorldState`, the same parameters, and the same submission sequence, and call `SimulationEngine.run`. A causal-trace comparison aligns event types, causes, whether a belief was written, the intent cause, and the resource delta. Cross-implementation reproduction does not require event strings to match character for character. The 132 tests lock the regression contract of this Python implementation, including its own event text.
 
-以下事项是当前模型的能力边界，不是待实现功能，也不是待办：按行动者或按边的信任、网络在运行中改写自己、没有显式提交时的行动分布、长运行产生路径依赖、在 `q = 0` 时再区分 `fidelity`。边上的 `fidelity` 与 `trust`、组织、派系、制度同样不被运行读取。只有一个明确研究问题被这些边界挡住时，才重新审查机制。
-
-已知两处代码注释与实现不一致，本次不改生产代码。`action_resolver.py` 的模块说明仍写后果尚未实现，而 `action_consequence` 已经会给行动者资源 +1。`Capabilities` 的说明仍写影响力权重公式尚未实现，而群体聚合已经使用 `0.5 + 0.5 * influence`。这两句不改变当前执行路径，也不改变实验 1～4 的结论。
+The following are limits of what the current model can answer. They are not unimplemented features and they are not a backlog: per-actor or per-edge trust, a network that rewrites itself during a run, an action distribution when nothing is submitted, path dependence from a long run, and distinguishing `fidelity` when `q = 0`. Edge `fidelity`, edge `trust`, organizations, factions, and institutions are likewise unread at runtime. Mechanism review reopens only when a stated research question is blocked by one of these limits.

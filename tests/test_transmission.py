@@ -1,4 +1,4 @@
-"""PR-5：无噪声多层传递。层数增加，内容不变。"""
+"""PR-5: multi-hop transmission without noise. Hop count increases; content does not change."""
 
 from __future__ import annotations
 

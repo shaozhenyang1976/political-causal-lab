@@ -1,25 +1,34 @@
-"""沙盘场景生成器（规范第 52–55 节）。
+"""Sandbox scenario generator (specification sections 52–55).
 
-场景种子在这里只喂给场景随机流。
-SimulationEngine 会用同一个种子另建一条模拟随机流，不接续这里已经消耗的数字。
-因此以后改生成器的抽样次数，不会把后续 Tick 的随机序列整体错位。
+The scenario seed feeds only the scenario stream here.
+SimulationEngine builds a separate simulation stream from the same seed and
+does not continue the numbers already consumed here.
+Changing how many draws the generator makes therefore does not shift the
+random sequence of a later tick as a whole.
 
-随机抽取顺序属于 SCENARIO_VERSION。顺序变化时要升级版本号。
+Draw order belongs to SCENARIO_VERSION. A change of order requires a version bump.
 
-抽取顺序：
-1. I01..I20。每人先按 power, wealth, ideology, security, status 抽偏好，
-   再按 information, organization, influence, coercion, wealth 抽能力。
-2. OrgA、OrgB。按 ORGANIZATION_STATE_FIELDS 的顺序抽标量，含 resource_pool。
-3. (R1, G1) .. (R4, G4)。按 EDGE_QUALITY_FIELDS 抽质量。duration 固定为 0。
-4. I01..I20 的资源存量。组织资源复用第 2 步的 resource_pool，不再抽一次。
-5. 环境：economic_conditions, resource_availability, external_threats,
-   institutional_conditions。
+Draw order:
+1. I01..I20. Each person draws preferences in the order power, wealth,
+   ideology, security, status, then capabilities in the order information,
+   organization, influence, coercion, wealth.
+2. OrgA and OrgB. Scalars are drawn in ORGANIZATION_STATE_FIELDS order,
+   including resource_pool.
+3. (R1, G1) through (R4, G4). Qualities are drawn from EDGE_QUALITY_FIELDS.
+   duration is fixed at 0.
+4. Resource stocks for I01..I20. Organizational resources reuse the
+   resource_pool drawn in step 2 and are not drawn again.
+5. Environment: economic_conditions, resource_availability, external_threats,
+   institutional_conditions.
 
-未写明的初始标量使用 SeededRandom.uniform(0, 1)，区间是 [0, 1)。
-规范第 53 节的 “relatively high” 没有给阈值。当前假设是：
-被强调的偏好维度来自 [0.55, 1)，其余偏好维度来自 [0, 0.45)。
-拓扑不随 seed 变化。代表者是 20 名个体之外的 4 个实体。
-派系没有初始成员，联盟和信念初始为空。
+An initial scalar that is not otherwise specified uses SeededRandom.uniform(0, 1),
+on the interval [0, 1).
+Section 53's "relatively high" states no threshold. The current assumption is
+that an emphasized preference component is drawn from [0.55, 1) and every other
+preference component from [0, 0.45).
+Topology does not vary with the seed. The four representatives are entities
+in addition to the twenty individuals.
+Factions have no initial members. Coalitions and beliefs start empty.
 """
 
 from __future__ import annotations
@@ -69,7 +78,7 @@ KIND_ORGANIZATION_MEMBERSHIP = "organization_membership"
 
 
 class ScenarioGenerator:
-    """生成规范第 52 节的初始沙盘。历史场景不在这里。"""
+    """Builds the initial sandbox of specification section 52. Historical scenarios are not built here."""
 
     SCENARIO_VERSION = "sandbox-0.2"
 

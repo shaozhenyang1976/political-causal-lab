@@ -1,4 +1,4 @@
-"""Organization：协调结构（规范第 10 节）。"""
+"""Organization: a coordination structure (specification section 10)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from political_sim.core.bounds import (
 )
 from political_sim.core.mutation import SealedModel
 
-# 规范第 10 节列出的状态变量。membership 单独存放。
+# State variables listed in specification section 10. membership is stored separately.
 ORGANIZATION_STATE_FIELDS = (
     "hierarchy",
     "discipline",
@@ -34,12 +34,12 @@ _NON_NEGATIVE_FIELDS = frozenset({"resource_pool", "organizational_power"})
 
 @dataclass
 class Organization(SealedModel):
-    """组织状态。
+    """Organizational state.
 
-    internal_cohesion 使用规范对 cohesion 的 [0, 1] 约束。
-    resource_pool 与 organizational_power 只要求 >= 0。
-    其余变量规范没有给出范围，只要求是有限实数。
-    hierarchy 没有定义成树或层级图，因此只保存标量。
+    internal_cohesion uses the specification's [0, 1] constraint on cohesion.
+    resource_pool and organizational_power are required only to be >= 0.
+    The specification states no range for the remaining variables. They must be finite real numbers.
+    hierarchy is not defined as a tree or a level graph, so it is stored as a scalar.
     """
 
     id: str

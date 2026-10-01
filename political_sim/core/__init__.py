@@ -1,1 +1,1 @@
-"""Simulation Core 的数据结构与随机数。本步不包含模拟循环。"""
+"""Data structures and seeded randomness for the simulation core. The tick loop is not in this package."""

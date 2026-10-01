@@ -1,6 +1,6 @@
-"""对一次已经跑完的模拟做只读测量。
+"""Read-only measurement of a simulation that has already finished.
 
-这里不推进 Tick，也不写 WorldState。
+This module does not advance a tick and does not write WorldState.
 """
 
 from __future__ import annotations

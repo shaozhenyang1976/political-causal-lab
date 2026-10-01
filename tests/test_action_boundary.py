@@ -1,4 +1,4 @@
-"""PR-10：support 与 oppose 可以被接纳，但接纳不改变 WorldState。"""
+"""PR-10: support and oppose may be admitted, and admission does not change WorldState."""
 
 from __future__ import annotations
 

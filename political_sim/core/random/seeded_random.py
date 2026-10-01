@@ -1,4 +1,4 @@
-"""SeededRandom。所有随机数都从这里取出（规范第 55 节）。"""
+"""SeededRandom. Every random draw is taken from here (specification section 55)."""
 
 from __future__ import annotations
 
@@ -6,10 +6,12 @@ import random
 
 
 class SeededRandom:
-    """CPython random.Random 的固定入口。
+    """Fixed entry to CPython's random.Random.
 
-    STREAM_VERSION 标识这条随机流的算法。更换生成器或调用约定时要改版本号。
-    seed 只接受 int，避免同一实验种子因类型不同而走不同的哈希。
+    STREAM_VERSION identifies the algorithm of this stream. Change the version
+    when the generator or the calling convention changes.
+    seed accepts only int, so one experimental seed cannot take a different
+    hash path because of its type.
     """
 
     STREAM_VERSION = "cpython-random-mt19937-v1"

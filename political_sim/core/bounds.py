@@ -1,7 +1,6 @@
-"""规范第 72 节写明的运行时检查。
+"""Runtime checks stated in specification section 72.
 
-只强制规范已经给出的范围。生成器使用的采样区间是初始条件假设，
-不在这里提升为模型约束。
+Only ranges the specification already gives are enforced. Sampling intervals used by the generator are assumptions about initial conditions and are not promoted to model constraints here.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""事件记录。本阶段的 EventSystem 就是 EventLog。"""
+"""Event records. The EventSystem of this stage is EventLog."""
 
 from political_sim.core.events.event_log import Event, EventLog
 

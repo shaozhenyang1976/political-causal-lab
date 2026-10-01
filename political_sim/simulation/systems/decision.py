@@ -1,17 +1,20 @@
-"""从行动者可见的信念得到行动意图。
+"""Action intent from the belief visible to the actor.
 
-这里不读取真实状态，也不写入真实状态。
-约束先于基线分界；基线分界不是投票模型，只用来把“信念不同”和“约束不同”
-分成两条可单独实验的路径。
+This module neither reads nor writes true state.
+A constraint is checked before the baseline threshold. The threshold is not
+a voting model. It separates "belief differs" from "constraint differs" into
+two paths that can be experimented on separately.
 
-无约束且只有一条信念时：
+With no constraint and exactly one belief:
 
     mean(perceived preference) > 0.5 → support
     mean(perceived preference) < 0.5 → oppose
     mean(perceived preference) = 0.5 → abstain
 
-多个约束同时出现时，顺序来自当前实验规范，不是约束之间的固有重要性。
-没有唯一信念时意图是 seek_information，不把多条信念合成一个偏好。
+When several constraints are present, their order comes from the current
+experimental specification, not from any inherent importance among them.
+When there is not exactly one belief, the intent is seek_information.
+Multiple beliefs are not combined into one preference.
 """
 
 from __future__ import annotations
@@ -31,7 +34,7 @@ BASELINE_PERCEIVED_MEAN_CUTOFF = 0.5
 
 @dataclass(frozen=True)
 class ConstraintPolicy:
-    """实验参数。precedence 只描述这一份规范先检查哪条约束。"""
+    """Experimental parameter. precedence states only which constraint this specification checks first."""
 
     name: str
     precedence: tuple[str, ...]

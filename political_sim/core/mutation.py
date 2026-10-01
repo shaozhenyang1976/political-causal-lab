@@ -1,16 +1,17 @@
-"""WorldState 的写入闸门。
+"""Write gate for WorldState.
 
-项目约束：
+Project constraint:
 
     WorldState is mutable only through authorized state transitions.
 
-因果链是：
+The causal chain is:
 
     Entity → Decision → PoliticalAction → ActionResolver → State Mutation → EventLog
 
-构造完成之后，普通赋值会被拒绝。
-信息系统、经济系统或其他系统都不能直接改 WorldState。
-它们只能提出状态变化，由 ActionResolver 进入 mutation_scope() 后写入并记入 EventLog。
+After construction, ordinary assignment is rejected.
+An information system, an economic system, or any other system must not
+change WorldState directly. It may only propose a state change. ActionResolver
+writes that change inside mutation_scope() and records it in the EventLog.
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ _mutation_depth: ContextVar[int] = ContextVar("political_sim_mutation_depth", de
 
 
 class DirectMutationError(RuntimeError):
-    """调用方绕过 ActionResolver，直接改了已构造的状态。"""
+    """The caller changed constructed state directly, bypassing ActionResolver."""
 
 
 def ensure_can_mutate(name: str) -> None:
@@ -52,7 +53,7 @@ def mutation_scope() -> Iterator[None]:
 
 
 class SealedModel:
-    """构造结束后拒绝普通赋值。dataclass 字段本身不变。"""
+    """Rejects ordinary assignment after construction. The dataclass fields themselves are unchanged."""
 
     def __setattr__(self, name: str, value: object) -> None:
         if name != "_sealed" and self.__dict__.get("_sealed", False):
@@ -64,7 +65,7 @@ class SealedModel:
 
 
 class GuardedDict(dict):
-    """WorldState 里的映射。构造拷贝不设闸，之后的增删改都要进入 mutation_scope。"""
+    """Mapping stored in WorldState. The copy made during construction is not gated. Later insertion, deletion, and replacement must enter mutation_scope."""
 
     def __init__(self, mapping: Mapping[object, object] | None = None) -> None:
         super().__init__()

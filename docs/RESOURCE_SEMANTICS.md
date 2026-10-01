@@ -1,10 +1,10 @@
-# 资源契约
+# Resource Contract
 
-状态：**PR-12 RESOURCE CONSERVATION — FROZEN**
+Status: **PR-12 RESOURCE CONSERVATION — FROZEN**
 
-信息—认知—行动链已经闭合到“行动产生资源”，但尚未形成资源反馈闭环。
+The information–cognition–action chain closes at “an action produces resource.” No resource-feedback loop has been formed.
 
-`Resource` 目前是终点变量。它的变化只由已接纳行动解释：
+`Resource` is currently a terminal variable. Its change is fully accounted for by admitted actions:
 
 ```text
 ΔResource(actor) = number_of_accepted_actions(actor)
@@ -19,9 +19,9 @@
 7. Resource does not enter action, decision, information, preference, or trust.
 8. Resource has no causal layer yet, so it connects to no existing mechanism.
 
-第 8 条改写之前，不把资源接到行动可用性、决策、信息、信任、偏好或世界状态的其他部分。
+Until clause 8 is rewritten, resource is not connected to action availability, decision, information, trust, preference, or any other part of world state.
 
-## 当前骨架
+## Current skeleton
 
 PR-1 through PR-12 form the core causal skeleton. No feedback loop is established.
 
@@ -43,35 +43,33 @@ Execution         Action
 Consequence       Resource
 ```
 
-`Intent ≠ Action ≠ Consequence`。`Action → Resource` 是单向的。`Resource → ?` 刻意断开。
-
-Resource 是一个由已接纳行动产生的、按行动者归属的可守恒抽象账本变量。
+`Intent ≠ Action ≠ Consequence`. `Action → Resource` is one-directional. `Resource → ?` is deliberately disconnected.
 
 Resource is an abstract conserved ledger, owned by an actor and produced by admitted actions.
 
-它目前不是权力、财富或政治影响力。操作性定义只有 `accepted action → +1`。
+It is not power, wealth, or political influence. The only operational definition is `accepted action → +1`.
 
 A stored field does not gain causal meaning merely by existing.
 
-因此 `RepresentationEdge.trust`、`RepresentationEdge.fidelity` 和这份资源账本都可以先存放，但不因为字段存在就进入因果模型。
+`RepresentationEdge.trust`, `RepresentationEdge.fidelity`, and this resource ledger may therefore be stored without entering the causal model merely because the fields exist.
 
-## 阶段状态
+## Stage status
 
 PR-1 through PR-12 complete a one-way causal skeleton without feedback. PR-13 stays closed until a Resource causal contract is defined.
 
-PR-1～PR-12：无反馈的单向因果骨架已经完成；PR-13 暂不启动，等待 Resource 的因果语义先被独立定义。
+PR-13 is not started until Resource's causal meaning is defined independently.
 
-三个冻结区：
+Three frozen regions:
 
-1. `e`、`q`、`fidelity`、`trust` 各自只作用在生成、第一跳、后续转发和采信。
-2. `Intent ≠ Action ≠ Consequence`。
+1. `e`, `q`, `fidelity`, and `trust` act only on generation, the first hop, later forwarding, and admission.
+2. `Intent ≠ Action ≠ Consequence`.
 3. Resource counts admitted actions. It does not measure power, wealth, information, organization, or influence.
 
-`Resource → ?` 继续断开。打开下一条机制之前，先写 Resource causal contract，回答它代表什么、为什么有这种作用、影响哪一个既有层、发生在 tick 的哪一步、以及是否产生反馈。然后再写测试。
+`Resource → ?` remains disconnected. Before the next mechanism is opened, a Resource causal contract must name what it represents, why it has that effect, which existing layer it changes, where in the tick the change occurs, and whether it feeds back. Tests come after that contract.
 
 A Resource causal contract must name its meaning, why that effect exists, which existing layer it changes, where in the tick the change happens, and whether it feeds back.
 
-当前 132 项测试是这条无反馈骨架的回归底座。正式名称是 **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**。
+The current 132 tests are the regression base of this open-loop skeleton. The official name is **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**.
 
 - PR-13: not started
 - Regression baseline: 132 tests
@@ -79,7 +77,7 @@ A Resource causal contract must name its meaning, why that effect exists, which 
 - Resource → ?: Disconnected
 - Resource semantic: UNDECIDED
 
-PR-13 只有同时满足 Resource Causal Admission Test 才允许进入实现：
+PR-13 may enter implementation only when the Resource Causal Admission Test is satisfied in full:
 
 1. Semantic: Resource has one decided meaning.
 2. Operational: that meaning is computable or observable, not only a concept.
@@ -92,17 +90,16 @@ PR-13 只有同时满足 Resource Causal Admission Test 才允许进入实现：
 9. Regression: the 132 existing tests still pass.
 10. No hidden feedback: EventLog, DecisionContext, and ActionResolver do not create a second feedback edge.
 
-对照实验要证明：只改变 `Resource → X` 这一条边时，结果才发生预期变化；其他既有变量保持不变。不满足以上十条时，不启动 PR-13。
+A control experiment must show that the expected change occurs only when the single edge `Resource → X` is changed, and that the other existing variables stay unchanged. If the ten conditions are not met, PR-13 is not started.
 
 The first causal meaning of Resource may add only one directed edge.
 
-语义选择先写在 `docs/RESOURCE_SEMANTIC_ADR.md`。五问的答案目前是 UNDECIDED。因果合同和引擎改动都排在唯一操作性定义之后。
+The semantic choice is recorded first in `docs/RESOURCE_SEMANTIC_ADR.md`. All five answers are currently UNDECIDED. The causal contract and any engine change come after one operational definition.
 
-下面五种资源语义都还没有选择，也不进入引擎：
+None of the following resource interpretations has been selected, and none enters the engine:
 
-- 行动能力
-- 信息获取能力
-- 组织动员能力
-- 物质或经济资源
-- 纯粹实验观测量
-
+- action capacity
+- information access
+- organizational mobilization
+- material or economic resources
+- a pure experimental observable

@@ -1,8 +1,11 @@
-"""一个 Tick 的 17 个槽位。
+"""The 17 slots of one tick.
 
-顺序来自规范第 30 节。
-代表者只有在信号被采信后，才根据 ActorView 产生行动意图。未采信则意图为 seek_information，原因是 trust_rejected。
-组织决策、激励、联盟、权力等槽位仍然为空。
+The order comes from specification section 30.
+A representative produces an action intent from ActorView only after the
+signal is admitted. If it is not admitted, the intent is seek_information
+and the cause is trust_rejected.
+Organization decision, incentives, coalitions, power, and the other
+unlisted slots remain empty.
 """
 
 from __future__ import annotations

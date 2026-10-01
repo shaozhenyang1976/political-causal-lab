@@ -1,4 +1,4 @@
-"""PR-7：基线测量。不加入新的信息机制。"""
+"""PR-7: baseline measurement. No new information mechanism is added."""
 
 from __future__ import annotations
 

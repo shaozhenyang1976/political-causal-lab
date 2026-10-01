@@ -1,4 +1,4 @@
-"""四组基线。只重复已有链条，不加入新的信息传递机制。"""
+"""Four baselines. They repeat the existing chain and add no new information mechanism."""
 
 from __future__ import annotations
 

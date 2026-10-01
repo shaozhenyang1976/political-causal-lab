@@ -1,4 +1,4 @@
-"""沙盘生成器：规范第 52–55 节的结构，以及本步写明的采样假设。"""
+"""Sandbox generator: the structure of specification sections 52–55, and the sampling assumptions stated for this step."""
 
 from __future__ import annotations
 

@@ -1,10 +1,12 @@
-"""政治行动进入 WorldState 的唯一入口。
+"""The only entry through which a political action changes WorldState.
 
-PR-10 只打开 Intent 与 Action 的边界：support 和 oppose 可以被接纳。
-接纳只记事件，不改变 WorldState。后果仍未实现。
-规范里的 permission、resource requirement、institutional constraint、
-actor capability 都还没有规则可查，因此这里不判断它们。
-也不实现投票、联盟、任命或其他政治后果。
+PR-10 opens the boundary between intent and action: support and oppose may
+be admitted. Admission records an event and does not change WorldState.
+PR-11 then records action_consequence, which adds one resource unit to the
+submitting actor. The specification's permission, resource requirement,
+institutional constraint, and actor capability have no lookup rules here,
+so they are not checked. Voting, coalitions, appointments, and other
+political consequences are not implemented.
 """
 
 from __future__ import annotations
@@ -74,7 +76,7 @@ class ActionResolver:
         events: EventLog,
         rng: SeededRandom,
     ) -> None:
-        del rng  # PR-2 不消耗随机流。效果实现后只能使用这条 SeededRandom。
+        del rng  # PR-2 does not consume the random stream. A later effect that needs randomness may use only this SeededRandom.
         reason = self._structural_failure(world, action)
         if reason is None and action.action_type in ADMISSIBLE_ACTION_TYPES:
             events.record(

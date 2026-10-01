@@ -1,32 +1,38 @@
-"""真实状态到信念的传递。
+"""Transmission from true state to belief.
 
-代表者观察其所代表的群体。群体的真实信号使用规范第 7 节的基线权重：
+A representative observes the represented group. The group's true signal uses
+the baseline weight from specification section 7:
 
     w_i = 0.5 + 0.5 * influence_i
 
-这只用来定义“群体此刻的真实偏好/能力”，不是代表漂移，也不使用 fidelity、
-accountability 或 trust。
+That weight defines only the group's true preference and capability at this
+moment. It is not representation drift, and it does not use fidelity,
+accountability, or trust.
 
-生成误差是当前实验规范，不是随机噪声：
+Generation error is the current experimental rule, not random noise:
 
     G(p, e) = clamp(p - e, 0, 1)
 
-它只作用在偏好信号上，不改真实偏好，也不改能力信号。
-e = 0 时，生成信号等于真实群体信号。
+It applies only to preference signals. It does not change true preferences
+or capability signals. When e = 0, the generated signal equals the true
+group signal.
 
-第一跳使用 I_up = q * I_generated。
-q 是本次模拟的 information_quality，不是 RepresentationEdge 上的字段。
-q 不会把生成信号拉回真实值。
+The first hop uses I_up = q * I_generated.
+q is this run's information_quality, not a field on RepresentationEdge.
+q does not pull the generated signal back toward the true value.
 
-以后的跳沿 information_forward 复制。fidelity 为 1 时原样复制；小于 1 时，每一跳把已经收到的载荷再乘一次 fidelity。第一跳不乘 fidelity。
-不读取边的 fidelity、trust、information_up 或 information_down。
-只有 kind 为 information_forward 的网络链接才会转发。
-成员关系、代表关系、组织成员关系都不是传播通道。
-两条内容不同的信号到达同一个 (观察者, 对象) 时不平均，这一对不写入信念。
+Later hops follow information_forward. When fidelity is 1, the payload is
+copied unchanged. When fidelity is below 1, each later hop multiplies the
+already received payload by fidelity once. The first hop is not multiplied
+by fidelity. Edge fidelity, trust, information_up, and information_down are
+not read. Only a network link whose kind is information_forward forwards.
+Membership, representation, and organization membership are not channels.
+Two payloads with different content that arrive at the same
+(observer, subject) are not averaged, and that pair is not written as a belief.
 
-忠诚没有真实信号，估计值固定为 0。
-模拟器在生成观察时可以读取 True State。
-传出的 TransmittedSignal 和 ActorView 不再携带真实状态。
+Loyalty has no true signal. Its estimate is fixed at 0.
+The simulator may read True State while generating an observation.
+The emitted TransmittedSignal and ActorView no longer carry true state.
 """
 
 from __future__ import annotations
@@ -65,7 +71,7 @@ FIDELITY_RULE = (
 
 @dataclass(frozen=True)
 class GroupObservation:
-    """模拟器内部的真实信号。不能交给行动者。"""
+    """True signal inside the simulator. It must not be given to an actor."""
 
     observer_id: str
     subject_id: str
@@ -75,7 +81,7 @@ class GroupObservation:
 
 @dataclass(frozen=True)
 class TransmittedSignal:
-    """行动者实际收到的信号。里面没有真实状态。"""
+    """The signal the actor actually receives. It contains no true state."""
 
     observer_id: str
     subject_id: str
@@ -86,7 +92,7 @@ class TransmittedSignal:
 
 @dataclass(frozen=True)
 class ActorView:
-    """行动者可读的信念。没有 WorldState，也没有群体成员的真实偏好。"""
+    """Belief readable by the actor. It contains neither WorldState nor the true preferences of group members."""
 
     observer_id: str
     beliefs: tuple[Belief, ...]
@@ -124,7 +130,7 @@ def generate_observations(world: WorldState) -> tuple[GroupObservation, ...]:
 def apply_generation_error(
     observation: GroupObservation, generation_error: float
 ) -> GroupObservation:
-    """把真实群体信号变成生成信号。不读取 q，也不写回 WorldState。"""
+    """Turns the true group signal into a generated signal. Does not read q and does not write WorldState."""
 
     error = require_unit_interval("generation_error", generation_error)
     return GroupObservation(
@@ -136,7 +142,7 @@ def apply_generation_error(
 
 
 def generation_record(observation: GroupObservation, generation_error: float) -> tuple[str, ...]:
-    """事件里只写生成后的偏好和误差参数，不写真实值。"""
+    """The event records only the generated preference and the error parameter, not the true value."""
 
     error = require_unit_interval("generation_error", generation_error)
     generated = tuple(
@@ -163,9 +169,9 @@ def deliver(
     links: tuple[NetworkLink, ...],
     fidelity: float = 1.0,
 ) -> tuple[tuple[tuple[TransmittedSignal, str], ...], tuple[tuple[str, str], ...]]:
-    """第一跳只乘 q。之后每一跳 information_forward 再乘一次 fidelity。
+    """The first hop is multiplied only by q. Each later information_forward hop multiplies by fidelity once.
 
-    fidelity 为 1 时，后续跳原样复制。不读取 RepresentationEdge。
+    When fidelity is 1, later hops copy the payload unchanged. RepresentationEdge is not read.
     """
 
     fidelity_value = require_unit_interval("fidelity", fidelity)
@@ -233,7 +239,7 @@ def preference_distance(true_preference: Preferences, estimated: Preferences) ->
 
 
 def signal_record(signal: TransmittedSignal) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    """事件里只写收到的信号，不写真实值。"""
+    """The event records only the received signal, not the true value."""
 
     received = tuple(
         f"received_preference.{field}={getattr(signal.preference, field)!r}"

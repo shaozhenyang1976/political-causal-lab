@@ -1,57 +1,57 @@
 # Next Mechanism Audit
 
-状态：**NEXT MECHANISM AUDIT — CLOSED**
+Status: **NEXT MECHANISM AUDIT — CLOSED**
 
-Preparation only — PR-13 NOT STARTED。本阶段正式收口。下一步是等待一个现有模型无法回答的研究问题，不是改代码。
+Preparation only — PR-13 NOT STARTED. This stage is closed. The next step is to wait for a research question the current model cannot answer, not to change code.
 
-本文件的职责是防止未经研究问题证明的因果边被引入，不是寻找缺失功能。基线仍是 **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**。引擎不变，生产代码不变，测试保持 132 / 132。Resource 仍是断开的结果变量。六个候选全部保持 **UNDECIDED**，没有选中任何机制。
+This file exists to stop causal edges that have not been justified by a research question. It does not exist to find missing features. The baseline remains **PR-1~PR-12: OPEN-LOOP BASELINE — FROZEN**. The engine is unchanged, production code is unchanged, and the tests remain 132 / 132. Resource remains a disconnected outcome variable. All six candidates remain **UNDECIDED**. No mechanism has been selected.
 
-## 0. 审计问题
+## 0. The audit question
 
-缺口不能从“怎样才更像一个完整的社会行为模拟器”里找。现实社会里存在某种关系，并不使模拟器必须实现它。
+A gap is not found by asking what would make a more complete social-behavior simulator. The existence of a relation in real society does not require the simulator to implement it.
 
-一条候选边要进入实现，先要有一个已经写明的研究问题，并且同时回答：
+A candidate edge enters implementation only after a research question has been stated and three further questions have been answered together:
 
-1. 没有它，当前模型能否回答该问题？
-2. 如果加入它，能否定义唯一的操作性变量？
-3. 能否只增加一条可实验验证的因果边？
+1. Can the current model answer that question without the edge?
+2. If the edge is added, can one operational variable be defined?
+3. Can exactly one experimentally checkable causal edge be added?
 
-这三个问题在研究问题写明之前保持 **UNDECIDED**。下面的候选都不是已经确认的缺口。
+Until the research question is stated, those three answers remain **UNDECIDED**. The candidates below are not confirmed gaps.
 
-## A. 已经覆盖的因果边
+## A. Causal edges already covered
 
 ```text
 Reality P
   ↓  e          Generation          G(p, e) = clamp(p - e, 0, 1)
   ↓  q          First hop           received₁ = q × G
-  ↓  fidelity   Forwarding          后续 information_forward 再乘 fidelity
-  ↓  trust      Admission           t ≥ τ 才把 received 写入 belief
-  ↓             ConstraintPolicy    只在已采信的信念上产生意图
-  ↓             Intent              每个代表每拍一条；不改 WorldState
-  ↓             Explicit Action     显式提交；不等于意图
-  ↓             ActionResolver      只有 support / oppose 可被接纳
-  ↓             Consequence         行动者资源 +1
+  ↓  fidelity   Forwarding          each later information_forward hop multiplies by fidelity
+  ↓  trust      Admission           received is written to belief only if t ≥ τ
+  ↓             ConstraintPolicy    intent is produced only from an admitted belief
+  ↓             Intent              one record per representative per tick; WorldState is unchanged
+  ↓             Explicit Action     submitted explicitly; not the same as intent
+  ↓             ActionResolver      only support / oppose may be admitted
+  ↓             Consequence         the actor's resource increases by 1
   ↓             Resource            initial_resource + accepted_action_count
   ↓
-  X             断开
+  X             disconnected
 ```
 
-同时已经固定、不得被新边悄悄改写的还有：
+The following are also fixed and must not be quietly rewritten by a new edge:
 
-- `e`、`q`、`fidelity`、`trust` 各自只作用在自己的层。
-- `Intent ≠ Action ≠ Consequence`。
-- `accepted_action_count` 与 `initial_resource` 来源分离。
-- 跳数本身不造成衰减。只有显式 `fidelity < 1` 才改变后续载荷。
-- 冲突信号不平均。多个信念不平均。
-- `RepresentationEdge.trust` 与 `RepresentationEdge.fidelity` 只是存放字段，不是机制。
-- 直接观察者的 `transmission_gap` 为 0。`estimated_information` 保持为 `q`。
-- 新机制不得写入 Resource，也不得读取 Resource。
+- `e`, `q`, `fidelity`, and `trust` each act only on their own layer.
+- `Intent ≠ Action ≠ Consequence`.
+- `accepted_action_count` and `initial_resource` have separate origins.
+- Hop count does not attenuate. Only an explicit `fidelity < 1` changes later payloads.
+- Conflicting signals are not averaged. Multiple beliefs are not averaged.
+- `RepresentationEdge.trust` and `RepresentationEdge.fidelity` are stored fields, not mechanisms.
+- The direct observer's `transmission_gap` is 0. `estimated_information` remains `q`.
+- A new mechanism must neither write Resource nor read Resource.
 
-## B. 待审查的候选边
+## B. Candidate edges still under review
 
-全部是 **UNDECIDED**。列出它们只表示可以审查，不表示它们缺失，也不表示应当实现。
+All are **UNDECIDED**. Listing them means they may be reviewed. It does not mean they are missing, and it does not mean they should be implemented.
 
-| 候选边 | 状态 |
+| Candidate edge | Status |
 | --- | --- |
 | Action → Information | UNDECIDED |
 | Action → Reality | UNDECIDED |
@@ -60,13 +60,13 @@ Reality P
 | Belief → Belief | UNDECIDED |
 | Action → Trust | UNDECIDED |
 
-以下方向在单独通过上面三个问题之前，不提前加入。它们很容易一次带出多条反馈边：Resource 反馈、信任学习、声誉、权力、影响力机制、组织等级、魅力、人气、行动概率。已有的 `capabilities.influence` 只参与真实观察的权重，不是这些机制中的任何一个。
+The following are not added early, before they pass the three questions above on their own. Each can pull in several feedback edges at once: resource feedback, trust learning, reputation, power, an influence mechanism, organizational hierarchy, charisma, popularity, and action probability. The existing `capabilities.influence` participates only in the weight of a true observation. It is none of those mechanisms.
 
-## C. 必要性审查
+## C. Necessity review
 
-研究问题尚未写明，所以下表不填结论。
+No research question has been stated, so the table below draws no conclusion.
 
-| 候选边 | 没有它能否回答目标问题 | 能否定义唯一操作性变量 | 能否只加一条可验证的边 |
+| Candidate edge | Can the target question be answered without it? | Can one operational variable be defined? | Can one verifiable edge be added? |
 | --- | --- | --- | --- |
 | Action → Information | UNDECIDED | UNDECIDED | UNDECIDED |
 | Action → Reality | UNDECIDED | UNDECIDED | UNDECIDED |
@@ -75,7 +75,7 @@ Reality P
 | Belief → Belief | UNDECIDED | UNDECIDED | UNDECIDED |
 | Action → Trust | UNDECIDED | UNDECIDED | UNDECIDED |
 
-单箭头卡片在某一行离开 UNDECIDED 之前不填写。卡片格式是：
+A single-edge card is not filled until a row leaves UNDECIDED. The card format is:
 
 ```text
 Mechanism
@@ -90,52 +90,52 @@ Confounders:
 Control condition:
 ```
 
-### 审查时已经能看到的混淆
+### Confusions already visible at review
 
-**Action → Information。** 现有信息只来自现实与显式转发，行动本身还不是信息来源。若要审查，先回答“哪一种已经发生、且被谁观察到的行动，产生哪一种信号”。不能把“被接纳的行动”直接写成下一条信号。
+**Action → Information.** Existing information comes only from reality and explicit forwarding. An action is not yet an information source. A review must first answer which already-occurred action, observed by whom, produces which signal. An admitted action must not be written directly as the next signal.
 
-还要把两件事分开：行动可以成为信息载体；行动因此改变信念。在当前管线里，一个进入传输的信号会在下一拍经过采信并写入信念。若新信号走现有的 Information → Belief 路径，那么“只是载体”会连带打开第二条边。要保持一条边，可观察事件必须停在进入 `belief_update` 之前，除非研究问题明确要求它成为信念输入，并把它算作那唯一的一条边。
+Two claims have to stay separate: an action can carry information, and an action therefore changes belief. In the current pipeline, a signal that enters transmission is admitted on the next tick and may be written as belief. If the new signal uses the existing Information → Belief path, the wording “carrier only” still opens a second edge. To keep one edge, the observable event must stop before it enters `belief_update`, unless the research question explicitly requires the signal as a belief input and counts that as the single edge.
 
-**Action → Reality。** 当前后果故意不改变偏好、信念和信息。现实没有因行动改变，是这条开放环的设计，不是尚未修补的漏洞。若要审查，先写明 `Action X` 改变哪一个 `WorldState` 变量 Y。Y 若会被下一拍的生成读到，这条边就是反馈，而不是终端后果。
+**Action → Reality.** The current consequence deliberately does not change preferences, beliefs, or information. Reality is unchanged by action because the loop was left open, not because a hole remains to be patched. A review must first name which `WorldState` variable Y is changed by action X. If the next tick’s generation reads Y, the edge is feedback, not a terminal consequence.
 
-**Belief → Belief。** 多个信念不自动平均已经冻结。把信念之间的传递列进来时，不能把它实现成平均或互相覆盖。
+**Belief → Belief.** The rule that multiple beliefs are not averaged automatically is frozen. A transmission between beliefs must not be implemented as averaging or as mutual overwrite.
 
-**Action → Trust。** 信任目前只是采信门槛 `t`、`τ`。行动改变信任会把执行层接回采信层，并立刻形成 Action → Trust → Belief → Intent → Action。这不是一条孤立的边。
+**Action → Trust.** Trust is currently only the admission gate `t`, `τ`. An action that changes trust connects the execution layer back to admission and immediately forms Action → Trust → Belief → Intent → Action. That is not an isolated edge.
 
-## D. 本阶段的审计结果
+## D. Result of this stage
 
-目前没有被证明必须增加任何新因果边。六个候选全部保持 **UNDECIDED**，三个必要性问题保持空白。这就是本阶段的结果，不是待补的空栏。
+No new causal edge has been shown to be necessary. All six candidates remain **UNDECIDED**, and the three necessity questions remain blank. That is the result of this stage. It is not an empty form waiting to be filled.
 
-两条审查原则同时冻结：
+Two review principles are frozen together:
 
-1. 好接入不是有必要。`Action → Information` 即使能接上现有管线，也不能因此被采用。若以后研究它，可观察事件必须先停在 `belief_update` 之前。否则信号会沿 Information → Belief 进入信念，名义上的“信息载体”在因果上已经是 Action → Belief。
-2. `Action → Reality` 不因排在链条后面而成为下一步。现在的 `Action → Consequence → Resource` 是终端结果。若行动改写的 WorldState 变量进入下一拍生成，得到的是 Action → Reality → Information → Belief → Intent → Action，而不再是单纯的后果。
+1. Ease of attachment is not necessity. `Action → Information` is not adopted merely because it can be wired into the existing pipeline. If it is studied later, the observable event must stop before `belief_update`. Otherwise the signal follows Information → Belief, and a nominal “information carrier” is already Action → Belief.
+2. `Action → Reality` is not next merely because it sits later in the chain. The present `Action → Consequence → Resource` is a terminal outcome. If a WorldState variable rewritten by action enters the next tick’s generation, the result is Action → Reality → Information → Belief → Intent → Action, not a bare consequence.
 
-模型不是因为缺少现实世界中的机制而不完整；只有当某个明确研究问题无法由现有因果结构回答时，模型才具有增加机制的必要性。
+The model is not incomplete because a real-world mechanism is absent. A mechanism is necessary only when a stated research question cannot be answered by the existing causal structure.
 
-因此六个候选只是待审计假设，不是待办功能。Feedback 的判定对象是后续因果输出，不是某一个中间变量的数值变化。正式判定按这条路径机械执行：
+The six candidates are hypotheses awaiting audit, not features awaiting implementation. Feedback is judged on later causal outputs, not on a change in one intermediate number. The formal test follows this path:
 
 ```text
 Action
   ↓
-变量改变 / 信息产生
+a variable changes, or information is produced
   ↓
-后续 Tick
+a later tick
   ↓
-进入既有读取或处理路径？
-  ├─ No → 不是 feedback
+does it enter an existing read or process path?
+  ├─ No → not feedback
   └─ Yes
        ↓
-     因果输出改变？
-       ├─ No → 不是 feedback
+     does a causal output change?
+       ├─ No → not feedback
        └─ Yes → Level 3 feedback
 ```
 
-因果输出只包括生成、传输、信念、意图和行动。`ΔBelief = 0` 且 `ΔIntent ≠ 0` 仍是 Level 3。`ΔWorldState ≠ 0` 或 `ΔEventLog ≠ 0` 本身不能判定为 feedback。没有进入后续读取路径时，后面的输出即使变化，也不算这条 Action 的 feedback。
+Causal outputs are generation, transmission, belief, intent, and action. `ΔBelief = 0` and `ΔIntent ≠ 0` is still Level 3. `ΔWorldState ≠ 0` or `ΔEventLog ≠ 0` is not, by itself, feedback. If the changed variable never enters a later read path, a later change in output is not feedback from that action.
 
-Level 3 只负责认定反馈。它不是“只有反馈边才可以加入模型”的许可证。没有研究问题和必要性证明时，新的 Level 1 边同样不能加。已有的状态变化也不使任何候选获得 PR-13 资格。目前不存在需要修复的反馈。
+Level 3 identifies feedback. It is not a license that says only feedback edges may be added. Without a research question and a necessity proof, a new Level 1 edge is also forbidden. Existing state changes do not qualify any candidate for PR-13. No existing feedback needs repair.
 
-只有 Level 3 叫 feedback：
+Only Level 3 is called feedback:
 
 ```text
 Level 1 — State Change
@@ -145,117 +145,117 @@ Level 2 — Observation
 State Change → EventLog
 
 Level 3 — Causal Feedback
-Changed state / derived information
+Changed state or derived information
         ↓
-later read / processed
+   later read or process
         ↓
-downstream causal output changes
+a downstream causal output changes
 ```
 
-Level 3 的必要条件是整条路径，不是单独的输出变化：被 Action 改变的变量或 Action 派生的信息，进入后续拍的既有读取或处理路径，并且至少一个后续因果输出因此改变。后续因果输出包括生成、传输、信念、意图和行动。`EventLog` 中的新值、`action_consequence` 的 `state_change`、`WorldState` 被修改、以及下一拍存在，都停在 Level 1 或 Level 2。
+Level 3 requires the whole path, not a single output change. A variable changed by an action, or information derived from an action, must enter an existing read or process path on a later tick, and at least one later causal output must change because of that. Later causal outputs are generation, transmission, belief, intent, and action. A new value in the event log, the `state_change` of `action_consequence`, a modified WorldState, and the mere existence of a next tick all stop at Level 1 or Level 2.
 
-信念数值保持不变，也可以是 Level 3。行动派生信号若进入下一拍的 Information 管线并被 `belief_update` 处理，信任门槛可以拒绝采信：库存信念保持原值，意图变为 `seek_information`。`ΔBelief = 0` 且 `ΔIntent ≠ 0`。把 feedback 定义成“信念数值改变”会漏掉这条路径。`trust_rejected` 仍然不是无信息、不是信念误差、也不是 `constraint:delay`。
+An unchanged belief value can still be Level 3. If an action-derived signal enters the next tick’s information pipeline and is handled by `belief_update`, the trust gate may refuse admission: the stored belief keeps its value and intent becomes `seek_information`. Then `ΔBelief = 0` and `ΔIntent ≠ 0`. Defining feedback as “the belief number changed” misses that path. `trust_rejected` is still not absence of information, not belief error, and not `constraint:delay`.
 
-两个测试都使用这条 Level 3 标准：
+Both tests use this Level 3 standard:
 
-1. **Information feedback test。** 行动派生的信息是否进入后续拍中被 `belief_update` 消费的 Information 管线，并因此改变信念阶段或其下游意图、行动的输出？同一拍的 `political_action` 到不了已经完成的 `belief_update`。在它之前多记一个观察事件，也不能靠位置阻断这条路径。
-2. **State feedback test。** 行动造成的状态变量变化，是否被后续拍的上游机制重新读取，并因此改变该机制或其下游的生成、传输、信念、意图或行动输出？
+1. **Information feedback test.** Does action-derived information enter the information pipeline consumed by `belief_update` on a later tick, and therefore change the belief stage or the downstream intent or action? `political_action` in the same tick cannot reach the `belief_update` that has already finished. An extra observation event placed before `belief_update` does not, by its position, cut that path.
+2. **State feedback test.** Is a state variable changed by an action read again by an upstream mechanism on a later tick, and does that change the mechanism’s output or the downstream generation, transmission, belief, intent, or action? 
 
-`Action → Resource` 停在 Level 1，其事件记录停在 Level 2。生成不读取 Resource。`Action → Preference'` 若进入下一拍生成，并改变信息、信念、意图和之后的行动，才进入 Level 3。
+`Action → Resource` stops at Level 1. Its event record stops at Level 2. Generation does not read Resource. `Action → Preference'` reaches Level 3 only if the rewritten preference enters the next tick’s generation and changes information, belief, intent, and a later action.
 
-EventLog 记录了一个事实，并不等于模型已经建立了那条因果关系。已有的状态变化本身不构成启动 PR-13 的理由。
+An event log can record a fact without the model having established that causal relation. Existing state changes are not a reason to start PR-13.
 
-## E. 两个独立门槛
+## E. Two independent gates
 
-Level 3 回答“这是不是 feedback”。机制准入回答“这条边有没有资格存在”。两者不互相代替。
+Level 3 answers “is this feedback?” Admission answers “may this edge exist?” Neither substitutes for the other.
 
-**A. Feedback 判定。** 只有三项同时成立才是 Level 3：Action 改变变量或产生信息；该变化进入后续拍的既有读取或处理路径；生成、传输、信念、意图或行动中至少一个因果输出因此改变。`ΔBelief = 0` 且 `ΔIntent ≠ 0` 仍然成立。`ΔWorldState ≠ 0` 或 `ΔEventLog ≠ 0` 单独都不成立。
+**A. Feedback classification.** Level 3 holds only when all three are true: an action changes a variable or produces information; that change enters an existing read or process path on a later tick; and at least one of generation, transmission, belief, intent, or action therefore changes. `ΔBelief = 0` and `ΔIntent ≠ 0` still counts. `ΔWorldState ≠ 0` or `ΔEventLog ≠ 0` alone does not.
 
-**B. 新机制准入。** 顺序是：明确研究问题，现有模型是否无法回答，确定所需变量，操作性定义，证明必要性，确定最小因果边，设计隔离对照实验，然后才有资格进入 PR。这里不要求新边必须产生 Level 3 feedback。一个不被后续机制读取的 `Action → NewOutcome` 可以是合法的 Level 1 终端边，但必须先走完这套准入。反过来，`Action → X → Generation → … → Action` 即使天然是反馈环，没有研究问题证明需要它，也不能因此启动 PR-13。
+**B. Admission of a new mechanism.** The order is: a stated research question; whether the current model cannot answer it; the required variables; an operational definition; a necessity proof; the minimal causal edge; an isolated control experiment; and only then eligibility for a PR. The new edge is not required to be Level 3 feedback. An unread `Action → NewOutcome` can be a legitimate Level 1 terminal edge, but only after this admission sequence. Conversely, `Action → X → Generation → … → Action` is a feedback loop by nature and still cannot start PR-13 without a research question that requires it.
 
-Feedback 是分类标准，不是准入标准。因果闭环不是新增机制的理由；研究问题才是。
+Feedback is a classification standard, not an admission standard. A closed causal loop is not a reason to add a mechanism. The research question is.
 
-因此：Feedback 不等于机制准入资格。终端边不自动合法。反馈环不自动合法。能够启动下一阶段的，只有一个现有模型无法回答的明确研究问题。在那之前保持冻结，是研究流程，不是停滞。
+Therefore feedback is not admission. A terminal edge is not automatically legitimate. A feedback loop is not automatically legitimate. The only thing that can start the next stage is a stated research question that the current model cannot answer. Remaining frozen until then is the research procedure, not a stall.
 
-在两道门槛都未通过之前，132 项测试、生产代码、引擎和 PR-1～PR-12 保持冻结。没有 PR-13。
+Until both gates have been passed, the 132 tests, the production code, the engine, and PR-1 through PR-12 stay frozen. There is no PR-13.
 
-## F. 实验阶段 — FROZEN
+## F. Experimental stage — FROZEN
 
-工作循环是：实验，观察，解释，然后问现有模型是否足够。足够，就记为模型结论。只有严格的不可判别才进入机制准入。不是：实验，找到缺口，加机制。
+The work cycle is: experiment, observe, interpret, then ask whether the current model is sufficient. If it is, record a model conclusion. Only strict non-identifiability enters mechanism admission. The cycle is not: experiment, find a gap, add a mechanism.
 
-否定性结果是模型结论。被接纳的行动不改变下一拍信念，这是现有开环已经回答的结果，不是缺少 `Action → Information`。
+A negative result is a model conclusion. An admitted action does not change the next tick’s belief. That is an answer already given by the open loop. It is not a missing `Action → Information` edge.
 
-已经闭合的识别：
+Identifications already closed:
 
-- 只看首跳信念时，`e` 和 `q` 都可以把它降到同一个数。EventLog 仍能分开：`e` 改变 `signal_generated`，`q` 不改变生成信号，只改变第一跳 received。
-- `fidelity` 不改变直接观察者。第一跳仍是 `q × G`。它只改变后续转发。直接观察者与下游观察者可以从事件链区分。
-- `trust < τ` 在 `ConstraintPolicy` 之前决定本拍意图。组合里出现 `trust_rejected`，不是 `delay` 失效，而是执行顺序使信任拒绝先决定了当前意图。信念可以保持原值。约束要等采信并且信念写入之后才作用。
+- Looking only at first-hop belief, both `e` and `q` can reduce it to the same number. The event log still separates them: `e` changes `signal_generated`; `q` does not change the generated signal and changes only the first-hop received value.
+- `fidelity` does not change the direct observer. The first hop remains `q × G`. Fidelity changes only later forwarding. The direct observer and a downstream observer can be separated in the event chain.
+- `trust < τ` decides the current tick’s intent before `ConstraintPolicy`. A combined run that shows `trust_rejected` does not mean `delay` failed. Execution order let trust rejection decide the current intent first. Belief may keep its previous value. A constraint applies only after admission and after the belief has been written.
 
-因果可辨识性结论：最终状态相同，不等于因果路径不可辨识。`e=0.25, q=1` 与 `e=0, q=0.75` 的首跳信念都是 `0.75`，意图都是 `baseline:support`；`signal_generated` 分别是 `0.75` 和 `1.0`，received 都是 `0.75`。`q=0.5, fidelity=1` 与 `q=1, fidelity=0.5` 的第二跳信念都可以是 `0.5`，第一跳分别是 `0.5` 和 `1.0`。只看最终下游会混淆；完整事件链加上网络位置可以恢复来源。事件不需要把最终因果来源写成一个标签。`trust_rejected` 没有 `belief_updated`；`constraint:seek_information` 先写入信念。阶段是否发生本身就提供辨识。`q=0` 时，`fidelity=1` 与 `fidelity=0.5` 的整份 EventLog 相同，因为 `0 × fidelity` 仍是 0。再记一条结果事件也不会产生新的可观测差异。把参数名抄进日志只是复述输入，不是新的轨迹差异。这是信息完全坍缩边界上的不可辨识，不是模型缺陷，也不产生 PR-13 候选。
+Identifiability conclusion: the same final state is not the same as a non-identifiable causal path. For `e=0.25, q=1` and `e=0, q=0.75`, first-hop belief is `0.75` and intent is `baseline:support` in both cases. `signal_generated` is `0.75` and `1.0` respectively, and received is `0.75` in both. For `q=0.5, fidelity=1` and `q=1, fidelity=0.5`, second-hop belief can be `0.5` in both cases, while the first hop is `0.5` and `1.0`. A downstream slice alone confounds the paths. The full event chain plus network position recovers the source. The event does not need a label that names the final cause. `trust_rejected` has no `belief_updated`. `constraint:seek_information` writes the belief first. Whether a stage occurred is itself identifying. When `q=0`, the full event logs for `fidelity=1` and `fidelity=0.5` are identical, because `0 × fidelity` is still 0. Another result event would not create a new observable difference. Copying the parameter name into the log only restates the input. This is non-identifiability on an information-collapse boundary. It is not a model defect, and it is not a PR-13 candidate.
 
-可辨识性原则：相同最终结果不等于相同因果路径。先检查完整 EventLog。只有完整轨迹也相同，才检查是否处于信息坍缩边界。研究问题是实验的前提，不再单独作为闸门。要判断的是：当前不可辨识是否妨碍回答这个研究问题。相同的完整 EventLog 不表示日志不够详细，也不因此增加日志或机制。
+Identifiability principle: the same final result is not the same causal path. Inspect the full event log first. Only when the full traces are also identical is an information-collapse boundary considered. A research question is the premise of an experiment. It is not a separate gate. The judgment is whether the present non-identifiability blocks that research question. An identical full event log does not mean the log is too coarse, and it is not a reason to add log fields or mechanisms.
 
-两道闸门：
+Two gates:
 
-1. 反直觉不等于模型缺陷。先判断它是不是现有模型产生的有效结论。是，就记录，不改模型。不是，就继续分析，而不是直接改代码。
-2. 不可辨识不等于需要增加机制。先判断这种不可辨识是否妨碍回答当前研究问题。不妨碍，就记录边界结论。只有当前问题本身要求区分这些无法分开的参数，才进入机制审查。
+1. A counterintuitive result is not a model defect. First decide whether it is a valid conclusion of the current model. If it is, record it and do not change the model. If it is not, continue the analysis. Do not go straight to code.
+2. Non-identifiability is not a reason to add a mechanism. First decide whether it blocks the current research question. If it does not, record the boundary. Mechanism review reopens only when the question itself requires those parameters to be distinguished.
 
-`q=0` 时，`fidelity=0.5` 与 `fidelity=1` 的完整事件链都显示首跳和后续传播为 0。若问题是“`q=0` 时首跳是否变为 0”，模型已经回答，到此结束。只有问题改成“在 `q=0` 时必须区分这两种 fidelity 的行为”，才有资格重新打开机制审查。
+When `q=0`, the full event chains for `fidelity=0.5` and `fidelity=1` both show a first hop of 0 and later propagation of 0. If the question is whether the first hop becomes 0, the model has answered it and the inquiry stops. Mechanism review may reopen only if the question becomes: under `q=0`, these two fidelity values must be distinguished.
 
-指向扩展的条件是同时成立：该结果不是现有模型已经给出的结论，并且这种不可辨识阻碍了当前研究问题。两个“是”并不都指向 PR。在那之前继续实验，不开发。
+Expansion requires both of the following: the result is not a conclusion the current model has already given, and the non-identifiability blocks the current research question. Two affirmative answers do not both point to a PR. Until then, continue to experiment and do not develop.
 
-因果系统分成三层。第一层是机制：`e` 生成，`q` 第一跳，`fidelity` 后续转发，`trust` 采信，`ConstraintPolicy` 意图。第二层是 EventLog 上的可观测轨迹，用来区分这些路径。第三层是不可辨识边界：输入信号坍缩后，不同参数产生完全相同的轨迹。`q=0` 时首跳 received 为 0，后续传播仍为 0，不同 `fidelity` 不再产生可观测差异。第三层是当前观测条件下的信息边界，不是模型错误。
+The causal system has three layers. The first is mechanism: `e` at generation, `q` at the first hop, `fidelity` on later forwarding, `trust` at admission, and `ConstraintPolicy` at intent. The second is the observable trace on the event log, which separates those paths. The third is the non-identifiability boundary: after the input signal collapses, different parameters produce identical traces. When `q=0`, first-hop received is 0 and later propagation remains 0, so different `fidelity` values no longer differ observably. The third layer is an information boundary under the current observations. It is not a model error.
 
-这一轮到此收束，不再围绕 EventLog 做扩展。下一步仍是：用现有模型提出研究问题，跑实验，观察，解释，判断现有模型是否足够。
+That round stops here. The event log is not extended further. The next step remains: pose a research question to the current model, run it, observe, interpret, and judge whether the current model is sufficient.
 
-机制准入只剩一个触发条件：明确的研究问题，在穷尽现有可观测输出之后仍然无法判别。以下情况都不触发：现实世界存在该机制，模型目前没有该变量，容易接入，能形成反馈环，这样会更真实，某个变量看起来应该有更多用途，以及当前结果与现实直觉不同。
+Mechanism admission has one remaining trigger: a stated research question that is still not decidable after the existing observable outputs have been exhausted. None of the following is a trigger: the real world has the mechanism; the model does not yet have the variable; the edge would be easy to attach; it would form a feedback loop; it would be more realistic; a variable looks as though it should do more; the result differs from intuition.
 
-在这个触发出现之前，132 项测试、生产代码、引擎和 PR-1～PR-12 保持冻结。没有 PR-13。继续用现有模型做实验。
+Until that trigger appears, the 132 tests, the production code, the engine, and PR-1 through PR-12 stay frozen. There is no PR-13. Continue to use the current model experimentally.
 
-### 实验 1 — CLOSED
+### Experiment 1 — CLOSED
 
-`e × q × fidelity`。模型能够回答。没有现有模型无法解释的现象。不新增机制，不改代码。
+`e × q × fidelity`. The model can answer. No phenomenon appeared that the current model cannot explain. No mechanism is added, and no code is changed.
 
-1. `e`、`q`、`fidelity` 不是同一个信息损失率。它们停在不同阶段：`e` 只改 `signal_generated`；`q` 只改第一跳，并因此按比例缩小后面各跳；`fidelity` 不改第一跳，只在后续 `information_forward` 上逐跳相乘。`e=0.25, q=1` 与 `e=0, q=0.75` 的各跳信念都是 `0.75`、意图都是 `support`，只靠生成信号分开。
-2. `fidelity` 沿后续跳累积，不是把所有人静态打同一个折扣。`e=0, q=1, fidelity=0.5` 时四跳为 `1, 0.5, 0.25, 0.125`，意图为 `support, abstain, oppose, oppose`。累积发生在同一拍的后续跳上，不是延后到后面几拍。
-3. 信念连续，意图离散。`e=0.25, q=0.75, fidelity=0.5` 时直接观察者信念为 `0.5625`，意图仍是 `support`；第二跳 `0.28125` 才变成 `oppose`。信念可以明显下降而不跨过 `0.5`。这是当前 DecisionPolicy 的结果，不是异常。
-4. 三种损失按因果位置依次相乘，不是 `1 - 0.25 - 0.25 - 0.5`，也不能压成一个总损失率。上例的信号是 `0.75 × 0.75 × 0.5 × 0.5 × 0.5`。缺口的 telescoping 记账仍然成立，那是结果差的分解，不是生成机制。
+1. `e`, `q`, and `fidelity` are not one information-loss rate. They stop at different stages. `e` changes only `signal_generated`. `q` changes only the first hop and therefore scales later hops in proportion. `fidelity` does not change the first hop. It multiplies on each later `information_forward`. For `e=0.25, q=1` and `e=0, q=0.75`, every hop has belief `0.75` and intent `support`. Only the generated signal separates them.
+2. `fidelity` accumulates along later hops. It does not apply one static discount to every person. For `e=0`, `q=1`, and `fidelity=0.5`, the four hops are `1`, `0.5`, `0.25`, and `0.125`, with intents `support`, `abstain`, `oppose`, and `oppose`. Accumulation occurs on later hops of the same tick. It is not deferred to later ticks.
+3. Belief is continuous and intent is discrete. For `e=0.25`, `q=0.75`, and `fidelity=0.5`, the direct observer’s belief is `0.5625` and intent remains `support`. The second hop, `0.28125`, becomes `oppose`. Belief can fall substantially without crossing `0.5`. That is a result of the current decision policy, not an anomaly.
+4. The three losses multiply in causal order. They are not `1 - 0.25 - 0.25 - 0.5`, and they are not collapsed into one total loss rate. The signal in the example is `0.75 × 0.75 × 0.5 × 0.5 × 0.5`. The telescoping gap identity still holds. It decomposes a difference in results. It is not the generative mechanism.
 
-### 实验 2 — CLOSED
+### Experiment 2 — CLOSED
 
-`trust × q`。固定 `e=0`、`fidelity=1`、`τ=0.5`，只看直接观察者。`q ∈ {1, 0.75, 0.5, 0}`，采信用 `trust=1`，拒绝用 `trust=0`。模型能够回答。不新增机制，不改代码。
+`trust × q`. Fixed `e=0`, `fidelity=1`, and `τ=0.5`. Only the direct observer is observed. `q` is in `{1, 0.75, 0.5, 0}`. Admission uses `trust=1`. Rejection uses `trust=0`. The model can answer. No mechanism is added, and no code is changed.
 
-1. `q` 与 `trust` 不在同一阶段。生成信号在八组里都是 `1.0`。`q` 只改变 received。`trust` 不改变 received，只决定这个 received 是否写入信念。
-2. 相同 received 可以走出两条路径。`q=0.5` 时 received 都是 `0.5`：采信写入信念 `0.5`，意图 `baseline:abstain`；拒绝不写信念，`action_intent` 的原因是 `trust_rejected`。只看 received 不能判断路径。
-3. `q=0` 把“数值为 0”和“没有信念记录”分开。采信写入信念 `0`，意图 `baseline:oppose`。拒绝的 received 也是 `0`，信念不存在，原因是 `trust_rejected`。拒绝事件的 `available_information` 另记 `intent=seek_information`。原因是 `trust_rejected`，意图类型是 `seek_information`。这与“已写入的零值信念”不是同一个状态。数值坍缩和是否写入信念是两层问题。
+1. `q` and `trust` are not at the same stage. The generated signal is `1.0` in all eight runs. `q` changes only received. `trust` does not change received. It decides whether that received value is written into belief.
+2. The same received value can take two paths. At `q=0.5`, received is `0.5` in both cases. Admission writes belief `0.5` and intent `baseline:abstain`. Rejection writes no belief, and the `action_intent` cause is `trust_rejected`. Received alone does not determine the path.
+3. `q=0` separates “the value is 0” from “no belief record exists.” Admission writes belief `0` and intent `baseline:oppose`. Rejection also has received `0`, no belief exists, and the cause is `trust_rejected`. The rejection event’s `available_information` additionally records `intent=seek_information`. The cause is `trust_rejected`. The intent type is `seek_information`. That is not the same state as a written zero belief. Numeric collapse and whether a belief is written are two layers.
 
-低质量与低信任通过不同路径影响决策。现有模型可以完整区分。EventLog 的阶段信息足够。
+Low quality and low trust affect the decision by different paths. The current model separates them completely. The event log’s stage information is sufficient.
 
-### 实验 3 — CLOSED
+### Experiment 3 — CLOSED
 
-`trust × ConstraintPolicy`。固定 `e=0`、`q=1`、`fidelity=1`、`τ=0.5`，只看直接观察者。模型能够回答。不新增机制，不改代码。
+`trust × ConstraintPolicy`. Fixed `e=0`, `q=1`, `fidelity=1`, and `τ=0.5`. Only the direct observer is observed. The model can answer. No mechanism is added, and no code is changed.
 
-1. Trust rejection 先于 ConstraintPolicy。`trust=0` 加 `seek_information` 与 `trust=0` 加 `delay` 的 R1 事件签名完全相同。约束没有失效，它没有执行。
-2. `seek_information` 要分开意图类型和原因。拒绝时意图类型是 `seek_information`，原因是 `trust_rejected`。采信后再加该约束，意图类型仍是 `seek_information`，原因是 `constraint:seek_information`。
-3. ConstraintPolicy 只在信念写入之后作用。采信时信念为 `1.0`，原因分别是 `constraint:seek_information` 与 `constraint:delay`。拒绝时没有 `belief_updated`。这个顺序写在事件里。
-4. 三种相近结果可以分开。无约束采信是信念 `1.0`、`baseline:support`。约束后寻求信息是信念 `1.0`、`constraint:seek_information`。信任拒绝后寻求信息是信念不存在、`trust_rejected`。意图与信念是否形成、以及原因，一起构成轨迹。
+1. Trust rejection precedes ConstraintPolicy. At `trust=0`, the R1 event signatures for `seek_information` and `delay` are identical. The constraint did not fail. It did not run.
+2. `seek_information` must separate intent type from cause. On rejection, the intent type is `seek_information` and the cause is `trust_rejected`. After admission, the same constraint still has intent type `seek_information` and cause `constraint:seek_information`.
+3. ConstraintPolicy acts only after a belief has been written. On admission, belief is `1.0` and the causes are `constraint:seek_information` and `constraint:delay`. On rejection there is no `belief_updated`. That order is in the events.
+4. Three similar-looking results can be separated. Unconstrained admission is belief `1.0` and `baseline:support`. Seeking information after a constraint is belief `1.0` and `constraint:seek_information`. Seeking information after trust rejection is no belief and `trust_rejected`. Intent, whether a belief was formed, and the cause together make the trace.
 
-Trust 与 ConstraintPolicy 同时存在时，执行顺序能够区分这两条路径。EventLog 足够。
+When trust and ConstraintPolicy are both present, execution order separates the two paths. The event log is sufficient.
 
-### 实验 4 — CLOSED
+### Experiment 4 — CLOSED
 
-信息损失是否会自动传导到 Action 或 Resource。固定 `fidelity=1`、`trust=1`、`τ=0.5`，无约束，只看直接观察者。资源初值是空账本。显式提交的是 `support`、`oppose` 或 `abstain`，目标 `G1`。模型能够回答。不新增机制，不改代码。四轮合在一起的边界见 `docs/EXPERIMENT_BOUNDARY.md`。
+Whether information loss propagates automatically to Action or Resource. Fixed `fidelity=1`, `trust=1`, and `τ=0.5`, with no constraint. Only the direct observer is observed. The opening resource ledger is empty. The explicit submissions are `support`, `oppose`, or `abstain`, with target `G1`. The model can answer. No mechanism is added, and no code is changed. The combined boundary of the four experiments is in `docs/EXPERIMENT_BOUNDARY.md`.
 
-| 条件 | 信念 | 意图原因 | 不提交 | 提交 `support` 或 `oppose` |
+| Condition | Belief | Intent cause | No submission | Submit `support` or `oppose` |
 |---|---:|---|---|---|
-| `e=0, q=1` | `1.0` | `baseline:support` | 无接纳，资源 `{}` | `action_accepted`，资源 `R1=1.0` |
-| `e=0.25, q=0.75` | `0.5625` | `baseline:support` | 无接纳，资源 `{}` | `action_accepted`，资源 `R1=1.0` |
-| `e=0, q=0.5` | `0.5` | `baseline:abstain` | 无接纳，资源 `{}` | `action_accepted`，资源 `R1=1.0` |
-| `e=0, q=0.25` | `0.25` | `baseline:oppose` | 无接纳，资源 `{}` | `action_accepted`，资源 `R1=1.0` |
-| `e=0, q=0` | `0.0` | `baseline:oppose` | 无接纳，资源 `{}` | 提交 `support` 后资源 `R1=1.0` |
+| `e=0, q=1` | `1.0` | `baseline:support` | No admission; resource `{}` | `action_accepted`; resource `R1=1.0` |
+| `e=0.25, q=0.75` | `0.5625` | `baseline:support` | No admission; resource `{}` | `action_accepted`; resource `R1=1.0` |
+| `e=0, q=0.5` | `0.5` | `baseline:abstain` | No admission; resource `{}` | `action_accepted`; resource `R1=1.0` |
+| `e=0, q=0.25` | `0.25` | `baseline:oppose` | No admission; resource `{}` | `action_accepted`; resource `R1=1.0` |
+| `e=0, q=0` | `0.0` | `baseline:oppose` | No admission; resource `{}` | After submitting `support`, resource `R1=1.0` |
 
-`q=0.5` 时提交 `abstain`：意图原因仍是 `baseline:abstain`，行动被拒绝，原因 `unknown action type`，没有 `action_accepted`，资源仍是 `{}`。
+Submitting `abstain` at `q=0.5`: the intent cause remains `baseline:abstain`, the action is rejected with reason `unknown action type`, there is no `action_accepted`, and resource remains `{}`.
 
-`support` 与 `oppose` 的接纳原因都是 `admitted (chosen)`。接纳事件的 `available_information` 仍是 `consequence=none`。资源 `+1` 写在随后的 `action_consequence`。两边的资源增量相同，并且不读取信念或意图。意图为 `support` 时提交 `oppose`，仍然接纳并得到 `R1=1.0`。
+The admission cause for both `support` and `oppose` is `admitted (chosen)`. The admission event’s `available_information` remains `consequence=none`. The resource +1 is written by the following `action_consequence`. The resource increment is the same in both cases and does not read belief or intent. Submitting `oppose` while intent is `support` is still admitted and yields `R1=1.0`.
 
-因此，信息损失改变信念；跨过 `0.5` 才改变意图。它不产生行动，也不改变资源。行动记录和资源变化只出现在显式提交的 `support` 或 `oppose` 被接纳之后。同一份提交，在阈值两侧得到相同的接纳和相同的资源。
+Information loss therefore changes belief. It changes intent only when the value crosses `0.5`. It does not produce an action and does not change resource. An action record and a resource change appear only after an explicitly submitted `support` or `oppose` is admitted. The same submission yields the same admission and the same resource on both sides of the threshold.

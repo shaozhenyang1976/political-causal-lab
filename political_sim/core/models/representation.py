@@ -1,4 +1,4 @@
-"""RepresentationEdge（规范第 11 节）。"""
+"""RepresentationEdge (specification section 11)."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ EDGE_QUALITY_FIELDS = (
 
 
 def representation_edge_key(edge: RepresentationEdge) -> tuple[str, str]:
-    """规范没有定义边 id。字典键是 (representative_id, represented_entity_id)。"""
+    """The specification defines no edge id. The dictionary key is (representative_id, represented_entity_id)."""
 
     return (edge.representative_id, edge.represented_entity_id)
 

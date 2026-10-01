@@ -1,13 +1,14 @@
-"""SimulationEngine。推进 Tick 的唯一公开入口。
+"""SimulationEngine. The only public entry that advances a tick.
 
-同一个整数种子分成两条互不接续的随机流：
+One integer seed splits into two streams that do not continue each other:
 
     Scenario Seed
-         ├── Scenario Generator → 场景随机流
-         └── SimulationEngine   → 模拟随机流
+         ├── Scenario Generator → scenario stream
+         └── SimulationEngine   → simulation stream
 
-修改场景抽样不会把 Tick 里的随机序列整体错位。
-当前信息传递和生成误差都是确定性的，模拟随机流还不会被消耗。
+Changing the scenario sample does not shift the random sequence inside a tick.
+Information transmission and generation error are deterministic, so the
+simulation stream is not consumed.
 """
 
 from __future__ import annotations
@@ -87,7 +88,7 @@ class SimulationEngine:
         self._queue.append(action)
 
     def intervene_preference(self, individual_id: str, field: str, value: float) -> None:
-        """实验者改变真实偏好。这不是政治行动，仍然必须经过 ActionResolver 并留下事件。"""
+        """The experimenter changes a true preference. This is not a political action. It still passes through ActionResolver and leaves an event."""
 
         if field not in PREFERENCE_FIELDS:
             raise ValueError(f"unknown preference field {field!r}")

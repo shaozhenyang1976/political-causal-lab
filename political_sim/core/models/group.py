@@ -1,4 +1,4 @@
-"""Group：利益聚合单位（规范第 6 节）。"""
+"""Group: a unit of interest aggregation (specification section 6)."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ from political_sim.core.mutation import SealedModel
 
 @dataclass
 class Group(SealedModel):
-    """成员是 Individual 的 id。
+    """Members are individual ids.
 
-    群体利益和凝聚力是后续计算，不存放在这个类里。
-    规范中的“若干”没有给出下限，因此允许空成员列表。
+    Group interest and cohesion are later calculations and are not stored on this class.
+    The specification's "some number" states no lower bound, so an empty member list is allowed.
     """
 
     id: str

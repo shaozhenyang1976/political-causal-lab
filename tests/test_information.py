@@ -1,4 +1,4 @@
-"""PR-3：真实状态、传递质量和信念。"""
+"""PR-3: true state, transmission quality, and belief."""
 
 from __future__ import annotations
 

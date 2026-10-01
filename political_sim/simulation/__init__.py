@@ -1,1 +1,1 @@
-"""SimulationEngine 与 TickProcessor。政治决策不在这一层。"""
+"""SimulationEngine and TickProcessor. Decision rules live in systems, not in this package initializer."""

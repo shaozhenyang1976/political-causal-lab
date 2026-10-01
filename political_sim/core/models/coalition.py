@@ -1,4 +1,4 @@
-"""Coalition：动态合作关系（规范第 21 节）。"""
+"""Coalition: a dynamic cooperative relation (specification section 21)."""
 
 from __future__ import annotations
 

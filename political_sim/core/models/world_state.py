@@ -1,4 +1,4 @@
-"""WorldState：模拟器的真实状态（规范第 24 节）。"""
+"""WorldState: the simulator's true state (specification section 24)."""
 
 from __future__ import annotations
 
@@ -40,10 +40,10 @@ def network_link_key(link: NetworkLink) -> tuple[str, str, str]:
 
 @dataclass
 class Environment(SealedModel):
-    """Tick 01 列出的环境状态。
+    """Environment fields listed by tick 01.
 
-    规范没有给出量纲。这里只要求有限实数。
-    random events 是过程产物，不作为初始字段。
+    The specification states no units. Only finite real numbers are required here.
+    Random events are products of a run and are not initial fields.
     """
 
     economic_conditions: float
@@ -73,7 +73,7 @@ class Environment(SealedModel):
 
 @dataclass
 class NetworkLink(SealedModel):
-    """结构链接。kind 是开放字符串，核心不规定政治关系枚举。"""
+    """A structural link. kind is an open string. The core does not enumerate political relations."""
 
     source_id: str
     target_id: str
@@ -120,7 +120,7 @@ class WorldState(SealedModel):
         return set(self._actor_ids())
 
     def validate(self) -> None:
-        """只读检查范围、标识和引用。"""
+        """Read-only check of ranges, identifiers, and references."""
 
         if not isinstance(self.environment, Environment):
             raise TypeError("environment must be Environment")

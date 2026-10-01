@@ -1,4 +1,4 @@
-"""核心契约。每一条都跑当前模型，不加入新机制。"""
+"""Core contract. Each clause runs the current model and adds no new mechanism."""
 
 from __future__ import annotations
 

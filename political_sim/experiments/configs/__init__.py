@@ -1,1 +1,1 @@
-"""目录占位。本步不实现实验配置。"""
+"""Package placeholder. Experiment configuration objects are not implemented."""

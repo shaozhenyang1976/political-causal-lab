@@ -1,4 +1,4 @@
-"""WorldState 引用完整性。沙盘人数不是 WorldState 的不变量。"""
+"""Referential integrity of WorldState. Sandbox population size is not a WorldState invariant."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Faction：政治行动集团（规范第 20 节）。"""
+"""Faction: a bloc of political action (specification section 20)."""
 
 from __future__ import annotations
 

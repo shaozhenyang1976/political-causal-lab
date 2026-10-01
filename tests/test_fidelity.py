@@ -1,4 +1,4 @@
-"""PR-9：fidelity 只改变后续转发的载荷。fidelity = 1 与 PR-8 相同。"""
+"""PR-9: fidelity changes only the payload of later forwards. fidelity = 1 matches PR-8."""
 
 from __future__ import annotations
 

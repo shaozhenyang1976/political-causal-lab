@@ -1,4 +1,4 @@
-"""五个架构不变量。它们约束以后的机制，而不是增加政治规则。"""
+"""Five architectural invariants. They constrain later mechanisms and do not add political rules."""
 
 from __future__ import annotations
 

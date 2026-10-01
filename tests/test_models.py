@@ -1,4 +1,4 @@
-"""核心数据类的字段和规范中写明的范围。"""
+"""Fields of the core data classes and the ranges stated in the specification."""
 
 from __future__ import annotations
 

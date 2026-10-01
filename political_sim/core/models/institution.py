@@ -1,7 +1,7 @@
-"""Institution。
+"""Institution.
 
-规范第 22 节用例子列出规则种类，没有定义规则语言。
-本步只保存 id，不增设规则字段，也不写入任何规则。
+Specification section 22 lists kinds of rules by example and defines no rule language.
+This type stores only an id. It adds no rule field and writes no rule.
 """
 
 from __future__ import annotations

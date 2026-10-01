@@ -1,4 +1,4 @@
-"""行动必须经过 ActionResolver，才能写回 WorldState。"""
+"""An action changes WorldState only by passing through ActionResolver."""
 
 from political_sim.core.actions.action_resolver import (
     ACTION_ADMISSION_RULE,

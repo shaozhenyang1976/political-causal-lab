@@ -1,4 +1,4 @@
-"""Representative。规范没有为该实体定义偏好或能力字段。"""
+"""Representative. The specification defines no preference or capability fields for this entity."""
 
 from __future__ import annotations
 

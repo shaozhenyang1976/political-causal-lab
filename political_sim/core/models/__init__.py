@@ -1,4 +1,4 @@
-"""模型公开类型。"""
+"""Public model types."""
 
 from political_sim.core.models.belief import Belief, belief_key
 from political_sim.core.models.coalition import Coalition

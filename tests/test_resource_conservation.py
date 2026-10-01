@@ -1,4 +1,4 @@
-"""PR-12：资源增量等于被接纳的行动次数，并且不进入下一拍的认知层。"""
+"""PR-12: the resource increment equals the number of admitted actions and does not enter the next tick's cognitive layer."""
 
 from __future__ import annotations
 
@@ -53,14 +53,17 @@ class ResourceConservationTests(unittest.TestCase):
         self.assertEqual(len(RESOURCE_CLAUSES), 8)
         for clause in RESOURCE_CLAUSES:
             self.assertIn(clause, semantics)
-        self.assertIn("尚未形成资源反馈闭环", semantics)
+        self.assertIn("No resource-feedback loop has been formed.", semantics)
         self.assertIn(SKELETON_STATUS, semantics)
         self.assertIn(RESOURCE_DEFINITION, semantics)
         self.assertIn(FIELD_PRESENCE_RULE, semantics)
         self.assertIn(STAGE_STATUS, semantics)
         self.assertIn(RESOURCE_LEDGER_LIMIT, semantics)
         self.assertIn(RESOURCE_CAUSAL_GATE, semantics)
-        self.assertIn("PR-13 暂不启动，等待 Resource 的因果语义先被独立定义。", semantics)
+        self.assertIn(
+            "PR-13 is not started until Resource's causal meaning is defined independently.",
+            semantics,
+        )
         self.assertIn(OPEN_LOOP_STATUS, semantics)
         for fact in OPEN_LOOP_FACTS:
             self.assertIn(fact, semantics)
@@ -75,7 +78,7 @@ class ResourceConservationTests(unittest.TestCase):
         self.assertEqual(len(RESOURCE_ADR_QUESTIONS), 5)
         for question in RESOURCE_ADR_QUESTIONS:
             self.assertIn(question, record)
-        self.assertIn("Resource 是一个由已接纳行动产生的、按行动者归属的可守恒抽象账本变量。", semantics)
+        self.assertIn(RESOURCE_DEFINITION, semantics)
         self.assertIn("RepresentationEdge.trust", semantics)
         self.assertIn("RepresentationEdge.fidelity", semantics)
 

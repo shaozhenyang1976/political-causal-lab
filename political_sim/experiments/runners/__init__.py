@@ -1,4 +1,4 @@
-"""基线运行器。不定义新的信息机制。"""
+"""Baseline runners. They define no new information mechanism."""
 
 from political_sim.experiments.runners.baseline import (
     BASELINE_ERRORS,

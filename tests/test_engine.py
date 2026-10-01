@@ -1,4 +1,4 @@
-"""PR-2：Tick 闭环、动作闸门和事件记录。不包含政治决策。"""
+"""PR-2: tick loop, action gate, and event record. Political decision is not included."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
-"""Belief_i(j) = (P̂, Ĉ, L̂, Î)（规范第 17 节）。
+"""Belief_i(j) = (P̂, Ĉ, L̂, Î) (specification section 17).
 
-忠诚和信息估计规范没有写成向量，也没有给出区间，因此保存为有限实数。
-偏好估计复用 Preferences，所以仍受 [0, 1] 约束。
+Loyalty and information estimates are not written as vectors and have no stated interval, so they are stored as finite real numbers.
+The preference estimate reuses Preferences and therefore remains constrained to [0, 1].
 """
 
 from __future__ import annotations

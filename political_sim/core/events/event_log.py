@@ -1,7 +1,7 @@
-"""EventLog。规范第 62 节要求的事件记录，也是本阶段的 EventSystem。
+"""EventLog. The event record required by specification section 62, and the EventSystem of this stage.
 
-available_information 只记录行动者已经收到的内容，不记录 True State。
-行动意图写入日志，但不写入 WorldState。
+available_information records only what the actor has already received. It does not record True State.
+An action intent is written to the log and is not written to WorldState.
 """
 
 from __future__ import annotations

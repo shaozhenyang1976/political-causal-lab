@@ -1,4 +1,4 @@
-"""采信门槛。发生在 DecisionContext 之前，不改已经生成或收到的信号。"""
+"""Admission threshold. It runs before DecisionContext and does not change a signal that has already been generated or received."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Individual：最基本的政治行为单位（规范第 5 节）。"""
+"""Individual: the basic unit of political behavior (specification section 5)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ CAPABILITY_FIELDS = ("information", "organization", "influence", "coercion", "we
 
 @dataclass
 class Preferences(SealedModel):
-    """P_i。规范 5.1 要求每一维都在 [0, 1]。"""
+    """P_i. Specification section 5.1 requires each component to lie in [0, 1]."""
 
     power: float
     wealth: float
@@ -33,11 +33,13 @@ class Preferences(SealedModel):
 
 @dataclass
 class Capabilities(SealedModel):
-    """C_i。
+    """C_i.
 
-    规范 5.2 只列出维度，没有写明取值区间。
-    此处只要求有限实数。influence 的权重公式暗示它应落在 [0, 1]，
-    但该公式尚未实现，因此不把这个区间写成能力约束。
+    Specification section 5.2 lists the dimensions and states no numeric range.
+    Only finite real numbers are required here. The influence-weight formula
+    suggests that influence should lie in [0, 1]. That formula is applied when
+    a group signal is aggregated, as 0.5 + 0.5 * influence. The capability
+    field itself is still not constrained to that interval.
     """
 
     information: float

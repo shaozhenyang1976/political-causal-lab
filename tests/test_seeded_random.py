@@ -1,4 +1,4 @@
-"""SeededRandom 的可复现性和与全局 random 的隔离。"""
+"""Reproducibility of SeededRandom and its isolation from the global random module."""
 
 from __future__ import annotations
 

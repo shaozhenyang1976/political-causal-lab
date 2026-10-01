@@ -1,4 +1,4 @@
-"""PR-8：采信门槛。不改信号，不把 trust 写进信念误差。"""
+"""PR-8: admission threshold. It does not change the signal and does not write trust into belief error."""
 
 from __future__ import annotations
 

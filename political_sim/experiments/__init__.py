@@ -1,1 +1,1 @@
-"""实验测量与基线运行。资源是终点账本，不进入认知层，也不形成反馈。"""
+"""Experimental measurement and baseline runs. Resource is a terminal ledger. It does not enter the cognitive layer and does not form feedback."""

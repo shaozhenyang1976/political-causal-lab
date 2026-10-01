@@ -1,22 +1,24 @@
 # Political Simulation Platform — Model & Implementation Specification v0.2
 
-本文件是设计规格，不是当前可运行模型的能力声明。可执行部分只有已冻结的开环基线：PR-1～PR-12。空 Tick 槽位没有执行体。联盟、制度、权力、界面、可替换理论和玩家实验都还不是机制。读者应先看 `README.md`、`docs/BASELINE_EXPERIMENT_SPEC.md` 和 `docs/EXPERIMENT_BOUNDARY.md`。
+This file is a design specification. It is not a statement of what the running model can do. The executable portion is only the frozen open-loop baseline, PR-1 through PR-12. Empty tick slots have no execution body. Coalitions, institutions, power, interfaces, replaceable theories, and player-facing experiments are not mechanisms. Read `README.md`, `docs/BASELINE_EXPERIMENT_SPEC.md`, and `docs/EXPERIMENT_BOUNDARY.md` first.
+
+The PR-1 through PR-7 labels in Appendix B are the original design sequence in this document. They are not the implemented freeze recorded in the baseline and boundary documents.
 
 ## 1. Purpose
 
-本文件定义 Political Simulation Platform v0.2 的核心政治模拟模型、数据结构、因果顺序、实验机制、可重复性要求与第一阶段实现边界。
+This document defines the core political model, data structures, causal order, experimental mechanism, reproducibility requirements, and first-stage implementation boundary of Political Simulation Platform v0.2.
 
-目标不是制作一个特定历史人物或历史事件的游戏，而是建立一个可替换理论、可复现实验、可观察解释的政治模拟基础平台。
+The objective is not to produce a game about one historical person or one historical event. The objective is a political-simulation foundation on which theories can be replaced, experiments can be reproduced, and explanations can be inspected.
 
-核心问题：
+Core question:
 
-> 在个体偏好、群体利益、组织能力、代表关系、信息不完全、联盟、制度与网络共同作用下，政治权力、政治行动与政治结果如何产生？
+> Given individual preferences, group interests, organizational capacity, representation, incomplete information, coalitions, institutions, and networks, how do political power, political action, and political outcomes arise?
 
 ---
 
 ## 2. Project Positioning
 
-平台采用以下分层结构：
+The platform is organized in the following layers:
 
 ```text
 Political Simulation Platform
@@ -30,16 +32,16 @@ Political Simulation Platform
       └── Research
 ```
 
-设计原则：
+Design principles:
 
-1. Simulation Core 与历史内容解耦。
-2. Theory Module 可插拔、可替换。
-3. Scenario 是数据，而不是核心逻辑。
-4. 所有实验具有 seed、版本与参数记录。
-5. 模拟过程必须可观察、可解释。
-6. 玩家和研究者可以创建、复制、修改实验。
-7. 不把任何政治结果写死为必然结果。
-8. LLM 不作为权威政治物理规则引擎。
+1. The simulation core is decoupled from historical content.
+2. A theory module is pluggable and replaceable.
+3. A scenario is data, not core logic.
+4. Every experiment records a seed, a version, and its parameters.
+5. A simulation must be observable and explainable.
+6. A player or a researcher can create, copy, and modify an experiment.
+7. No political outcome is written in as inevitable.
+8. A language model is not the authoritative engine of political rules.
 
 ---
 
@@ -47,36 +49,34 @@ Political Simulation Platform
 
 ### 3.1 Individual ≠ Group
 
-个体具有自己的偏好与能力。
+An individual has preferences and capabilities of their own.
 
-群体利益是个体利益的聚合结果。
+A group interest is an aggregate of individual interests.
 
 ### 3.2 Group ≠ Organization
 
-Group 表示利益共同体。
+A group denotes a community of interest.
 
-Organization 表示协调结构。
+An organization denotes a coordination structure.
 
 ### 3.3 Representative ≠ Represented Group
 
-代表者可能同时受到：
+A representative may be influenced at the same time by:
 
-- 被代表群体利益
-- 个人利益
-- 组织利益
-- 上级利益
-- 联盟利益
-- 生存利益
+- the interest of the represented group
+- a personal interest
+- an organizational interest
+- a superior's interest
+- a coalition interest
+- a survival interest
 
-影响。
-
-因此代表关系不是简单的：
+A representation relation is therefore not simply:
 
 ```text
 Group Preference → Representative Action
 ```
 
-而是：
+It is:
 
 ```text
 Group
@@ -92,22 +92,22 @@ Political Action
 
 ### 3.4 Information Loss ≠ Lying
 
-信息在层级传播过程中可能产生：
+Information may be distorted as it moves through a hierarchy by:
 
-- 随机噪声
-- 选择性报告
-- 战略性隐瞒
-- 误解
-- 利益过滤
-- 能力限制
+- random noise
+- selective reporting
+- strategic concealment
+- misunderstanding
+- interest filtering
+- limited capability
 
-所有参与者都可以是理性的，但整个系统仍可能产生信息失真。
+Every participant can be rational, and the system can still distort information.
 
 ---
 
 # 4. Core Entities
 
-核心实体：
+Core entities:
 
 ```text
 Individual
@@ -132,7 +132,7 @@ EventLog
 
 # 5. Individual
 
-Individual 是最基本的政治行为单位。
+An individual is the basic unit of political behavior.
 
 ## 5.1 Preferences
 
@@ -146,13 +146,13 @@ P_i = (
 )
 ```
 
-每一维归一化到：
+Each component is normalized to:
 
 ```text
 [0, 1]
 ```
 
-偏好与能力必须严格分离。
+Preferences and capabilities must be kept strictly separate.
 
 ## 5.2 Capabilities
 
@@ -166,29 +166,29 @@ C_i = (
 )
 ```
 
-原则：
+Principle:
 
 ```text
 Preference ≠ Capability
 ```
 
-一个人可以高度重视权力，但实际政治能力很低。
+A person may place a high value on power and still have little political capability.
 
 ---
 
 # 6. Group
 
-Group 是利益聚合单位。
+A group is a unit of interest aggregation.
 
-一个 Group 包含若干 Individual。
+A group contains some number of individuals.
 
 ---
 
 # 7. Group Interest
 
-群体利益由成员偏好加权聚合。
+Group interest is a weighted aggregate of member preferences.
 
-对于维度 k：
+For dimension k:
 
 \[
 G_g^k =
@@ -196,13 +196,13 @@ G_g^k =
 {\sum_{i\in M_g} w_i}
 \]
 
-初始版本：
+Initial version:
 
 \[
 w_i = 0.5 + 0.5\times influence_i
 \]
 
-其中：
+where:
 
 ```text
 M_g = Group members
@@ -210,41 +210,41 @@ P_i^k = Individual preference
 w_i = influence weight
 ```
 
-后续可以由 Theory Module 替换。
+A later theory module may replace this rule.
 
 ---
 
 # 8. Group Cohesion
 
-群体内部一致程度：
+Internal agreement of a group:
 
 \[
 Cohesion_g =
 1 - MeanDistance(P_i,G_g)
 \]
 
-结果归一化：
+The result is normalized to:
 
 ```text
 [0, 1]
 ```
 
-解释：
+Interpretation:
 
-- 0 = 内部分歧极大
-- 1 = 高度一致
+- 0 = extreme internal disagreement
+- 1 = high agreement
 
-注意：
+Note:
 
-> Cohesion 是描述变量，不是价值判断。
+> Cohesion is a descriptive variable, not a value judgment.
 
 ---
 
 # 9. Effective Collective Power
 
-群体潜在能力不等于有效政治能力。
+Potential group capability is not the same as effective political capability.
 
-基准公式：
+Baseline formula:
 
 \[
 EffectivePower_g =
@@ -254,7 +254,7 @@ PotentialPower_g
 \times Mobilization_g
 \]
 
-其中：
+where:
 
 ```text
 PotentialPower
@@ -263,23 +263,23 @@ Cohesion
 Mobilization
 ```
 
-均为：
+are each in:
 
 ```text
 [0,1]
 ```
 
-这一结构用于测试：
+This structure is used to test:
 
-> 为什么拥有大量资源的群体，有时仍无法形成有效政治行动？
+> Why can a group that holds substantial resources still fail to produce effective political action?
 
 ---
 
 # 10. Organization
 
-Organization 是将个人或群体转化为持续协调能力的结构。
+An organization is a structure that turns persons or groups into a sustained capacity to coordinate.
 
-核心变量：
+Core variables:
 
 ```text
 membership
@@ -296,19 +296,19 @@ organizational_power
 legitimacy
 ```
 
-组织不是单纯的人群集合。
+An organization is not merely a collection of people.
 
 ---
 
 # 11. RepresentationEdge
 
-代表关系必须建模为独立实体。
+A representation relation must be modeled as an entity of its own.
 
 ```text
 RepresentationEdge
 ```
 
-核心字段：
+Core fields:
 
 ```text
 representative_id
@@ -322,7 +322,7 @@ dependency
 duration
 ```
 
-其中：
+Of these:
 
 ```text
 fidelity
@@ -333,7 +333,7 @@ trust
 dependency
 ```
 
-均可以归一化到：
+may each be normalized to:
 
 ```text
 [0,1]
@@ -343,27 +343,27 @@ dependency
 
 # 12. Representation Fidelity
 
-定义：
+Definition:
 
 \[
 RF_{rg}\in[0,1]
 \]
 
-RF 越高：
+A higher RF means:
 
-> 代表者越能准确获取并反映被代表群体的利益。
+> The representative more accurately acquires and reflects the interest of the represented group.
 
-注意：
+Note:
 
-RF 不等于道德评价。
+RF is not a moral evaluation.
 
 ---
 
 # 13. Representation Utility
 
-代表者不是只最大化群体利益。
+A representative does not maximize only the group's interest.
 
-基准：
+Baseline:
 
 \[
 U_r =
@@ -374,7 +374,7 @@ w_SU_S+
 w_IU_I
 \]
 
-其中：
+where:
 
 ```text
 U_G = Group utility
@@ -384,111 +384,109 @@ U_S = Survival / security utility
 U_I = Institutional utility
 ```
 
-群体权重：
+The group weight is:
 
 \[
 w_G =
 RF_{rg}\times Accountability_r
 \]
 
-所有权重归一化。
+All weights are normalized.
 
-这允许系统产生：
+This allows the system to produce the following situation:
 
 ```text
-代表者仍然认为自己是理性的
+the representative still regards the action as rational
 ```
 
-但其行动已经偏离群体偏好。
+while the action has already departed from the group's preference.
 
 ---
 
 # 14. Representation Drift
 
-定义：
+Definition:
 
 \[
 RD =
 Distance(GroupPreference, RepresentativeAction)
 \]
 
-归一化：
+Normalized to:
 
 ```text
 [0,1]
 ```
 
-解释：
+Interpretation:
 
 ```text
-0 = 没有可测量偏离
-1 = 最大偏离
+0 = no measurable departure
+1 = maximum departure
 ```
 
-Representation Drift 是实验指标，不是道德判断。
+Representation drift is an experimental indicator, not a moral judgment.
 
 ---
 
 # 15. Information System
 
-系统必须严格区分：
+The system must distinguish strictly between:
 
 ```text
 True State
 ```
 
-与：
+and:
 
 ```text
 Belief State
 ```
 
-一个 Actor 可以拥有错误信息，但模拟器知道真实状态。
+An actor may hold incorrect information. The simulator still knows the true state.
 
 ---
 
 # 16. Information Transmission
 
-最简单的信息传递：
+The simplest transmission rule:
 
 \[
 I_{up}=qI_{down}
 \]
 
-其中：
+where:
 
 ```text
 q ∈ [0,1]
 ```
 
-多层传播：
+Multi-level propagation:
 
 \[
 I_C=q_{BC}q_{AB}I_A
 \]
 
-因此：
+Therefore the information quality along:
 
 ```text
 A → B → C
 ```
 
-的信息质量可能逐层降低。
+may decline from level to level.
 
 ---
 
 # 17. Belief
 
-每个 Actor 对其他 Actor 的状态形成自己的信念。
-
-：
+Each actor forms a belief about the state of other actors.
 
 \[
 Belief_i(j)=
 (\hat P_{ij},\hat C_{ij},\hat L_{ij},\hat I_{ij})
 \]
 
-其中：
+where:
 
 ```text
 P̂ = estimated preference
@@ -497,7 +495,7 @@ L̂ = estimated loyalty
 Î = estimated information
 ```
 
-必须保证：
+The following must hold:
 
 ```text
 Belief ≠ True State
@@ -507,11 +505,11 @@ Belief ≠ True State
 
 # 18. PoliticalActor
 
-PoliticalActor 是一种动态状态，而不是固定角色。
+PoliticalActor is a dynamic state, not a fixed role.
 
-一个 Individual、Representative、Organization、Faction 或 Coalition 都可能在特定时刻成为 PoliticalActor。
+An individual, a representative, an organization, a faction, or a coalition may become a political actor at a particular moment.
 
-PoliticalActor 的核心能力来自：
+The core capacities of a political actor come from:
 
 ```text
 information
@@ -528,7 +526,7 @@ representation
 
 # 19. Political Power
 
-基准：
+Baseline:
 
 \[
 PP_i =
@@ -541,32 +539,32 @@ Institutional
 )
 \]
 
-政治权力不是单一属性。
+Political power is not a single attribute.
 
 ---
 
 # 20. Faction
 
-Faction 是政治行动集团。
+A faction is a bloc of political action.
 
-Faction 与 Organization 不同：
+A faction is not an organization:
 
 ```text
 Organization = coordination structure
 Faction = political action bloc
 ```
 
-Faction 可以跨越多个 Organization。
+A faction may span several organizations.
 
 ---
 
 # 21. Coalition
 
-Coalition 是动态合作关系。
+A coalition is a dynamic cooperative relation.
 
-Coalition 不等于 Faction。
+A coalition is not a faction.
 
-它可以是：
+It may be:
 
 ```text
 temporary
@@ -579,9 +577,9 @@ strategic
 
 # 22. Institution
 
-Institution 定义可重复的政治规则。
+An institution defines political rules that can be applied repeatedly.
 
-例如：
+Examples:
 
 ```text
 decision rules
@@ -592,21 +590,19 @@ succession rules
 sanction rules
 ```
 
-Institution 不直接决定政治结果，而是改变行动空间与收益结构。
+An institution does not decide a political outcome directly. It changes the action space and the payoff structure.
 
 ---
 
 # 23. PoliticalAction
 
-所有政治行动必须通过：
+Every political action must be executed through:
 
 ```text
 ActionResolver
 ```
 
-执行。
-
-示例：
+Examples:
 
 ```text
 form_coalition
@@ -623,13 +619,13 @@ recruit
 defect
 ```
 
-禁止绕过 ActionResolver 直接修改核心状态。
+Core state must not be modified by bypassing ActionResolver.
 
 ---
 
 # 24. WorldState
 
-WorldState 保存模拟器真实状态：
+WorldState stores the simulator's true state:
 
 ```text
 individuals
@@ -650,31 +646,31 @@ environment
 
 # 25. True State / Belief State Separation
 
-这是 v0.2 的硬性要求。
+This is a hard requirement of v0.2.
 
-模拟器内部：
+Inside the simulator:
 
 ```text
 True State
 ```
 
-是唯一真实状态。
+is the only true state.
 
-Actor 决策只能访问：
+An actor's decision may access only:
 
 ```text
 Actor Belief State
 ```
 
-不能直接读取真实状态。
+An actor must not read the true state directly.
 
-否则信息不完全模型将失效。
+Otherwise a model of incomplete information fails.
 
 ---
 
 # 26. Simulation Architecture
 
-推荐：
+Recommended structure:
 
 ```text
 SimulationEngine
@@ -696,9 +692,9 @@ SimulationEngine
 
 # 27. TheoryModule
 
-理论模块必须可插拔。
+Theory modules must be pluggable.
 
-接口概念：
+Interface concept:
 
 ```text
 TheoryModule
@@ -710,26 +706,26 @@ TheoryModule
  └── update_representation()
 ```
 
-不同理论可以实现不同规则。
+Different theories may implement different rules.
 
 ---
 
 # 28. Theory Module Rules
 
-理论模块必须满足：
+A theory module must:
 
-1. 不直接修改不可授权状态。
-2. 不绕过 ActionResolver。
-3. 所有随机行为使用 SeededRandom。
-4. 所有核心计算可记录。
-5. 版本号必须记录。
-6. 可以被实验引擎替换。
+1. Not modify state it is not authorized to modify.
+2. Not bypass ActionResolver.
+3. Draw every random value from SeededRandom.
+4. Make every core calculation recordable.
+5. Record its version number.
+6. Be replaceable by the experiment engine.
 
 ---
 
 # 29. Layered Causality
 
-模型因果层级：
+Causal layers of the model:
 
 ```text
 Individual
@@ -752,14 +748,14 @@ World State
     ↓
 Power / Representation / Network
     ↓
-下一 Tick
+next Tick
 ```
 
 ---
 
 # 30. Tick Protocol
 
-每个 Tick 严格按照以下顺序：
+Each tick follows this order exactly:
 
 ```text
 01 Environment Update
@@ -781,13 +777,13 @@ Power / Representation / Network
 17 Event Log
 ```
 
-顺序必须固定。
+The order is fixed.
 
 ---
 
 # 31. Tick 01 — Environment Update
 
-更新：
+Updates:
 
 ```text
 economic conditions
@@ -801,7 +797,7 @@ random events
 
 # 32. Tick 02 — Information Generation
 
-生成：
+Generates:
 
 ```text
 observations
@@ -815,7 +811,7 @@ events
 
 # 33. Tick 03 — Information Transmission
 
-信息通过：
+Information propagates along:
 
 ```text
 individual → representative
@@ -824,9 +820,7 @@ organization → faction
 faction → coalition
 ```
 
-传播。
-
-每条边都有：
+Each edge has:
 
 ```text
 transmission_quality
@@ -836,7 +830,7 @@ transmission_quality
 
 # 34. Tick 04 — Belief Update
 
-Actor 根据：
+An actor updates belief from:
 
 ```text
 previous belief
@@ -845,13 +839,11 @@ trust
 prior belief
 ```
 
-更新信念。
-
 ---
 
 # 35. Tick 05 — Incentive Update
 
-计算：
+Computes:
 
 ```text
 personal utility
@@ -865,7 +857,7 @@ institutional utility
 
 # 36. Tick 06 — Coalition Evaluation
 
-计算：
+Computes:
 
 ```text
 cohesion
@@ -879,7 +871,7 @@ common threat
 
 # 37. Tick 07 — Representative Decision
 
-代表者根据：
+A representative selects an action from:
 
 ```text
 belief
@@ -891,13 +883,11 @@ survival
 institution
 ```
 
-选择行动。
-
 ---
 
 # 38. Tick 08 — Organization Decision
 
-组织根据：
+An organization forms an organizational action from:
 
 ```text
 membership
@@ -908,19 +898,17 @@ internal cohesion
 external threat
 ```
 
-形成组织行动。
-
 ---
 
 # 39. Tick 09 — Political Action
 
-所有行动进入：
+Every action enters:
 
 ```text
 ActionResolver
 ```
 
-由 ActionResolver 验证：
+ActionResolver checks:
 
 ```text
 permission
@@ -934,7 +922,7 @@ target validity
 
 # 40. Tick 10 — Conflict / Bargaining
 
-处理：
+Handles:
 
 ```text
 conflict
@@ -949,7 +937,7 @@ coalition formation
 
 # 41. Tick 11 — Resource Allocation
 
-资源按照：
+Resources are reallocated according to:
 
 ```text
 institutional rules
@@ -958,13 +946,11 @@ coalition agreements
 organization rules
 ```
 
-进行重新分配。
-
 ---
 
 # 42. Tick 12 — Power Recalculation
 
-重新计算：
+Recalculates:
 
 ```text
 individual power
@@ -980,7 +966,7 @@ network power
 
 # 43. Tick 13 — Representation Update
 
-更新：
+Updates:
 
 ```text
 fidelity
@@ -995,7 +981,7 @@ representation duration
 
 # 44. Tick 14 — Network Update
 
-更新：
+Updates:
 
 ```text
 alliances
@@ -1009,7 +995,7 @@ organizational links
 
 # 45. Tick 15 — Survival / Replacement
 
-可能发生：
+The following may occur:
 
 ```text
 leadership replacement
@@ -1019,13 +1005,13 @@ coalition collapse
 faction transformation
 ```
 
-Leader 不是永久角色。
+Leader is not a permanent role.
 
 ---
 
 # 46. Tick 16 — Metrics
 
-每 Tick 计算：
+Each tick computes:
 
 ```text
 Representation Drift
@@ -1038,14 +1024,12 @@ Coalition Stability
 
 # 47. Representation Drift Metric
 
-：
-
 \[
 RD=
 Distance(GroupPreference, RepresentativeAction)
 \]
 
-记录：
+Record:
 
 ```text
 mean
@@ -1059,14 +1043,14 @@ time series
 
 # 48. Information Distortion Metric
 
-可以定义：
+One possible definition:
 
 \[
 ID =
 Distance(TrueInformation, BelievedInformation)
 \]
 
-需要明确区分：
+The following must be distinguished:
 
 ```text
 generation error
@@ -1079,26 +1063,26 @@ strategic concealment
 
 # 49. Political Power Concentration
 
-使用 HHI：
+Using the Herfindahl–Hirschman index:
 
 \[
 HHI=\sum_i s_i^2
 \]
 
-其中：
+where:
 
 \[
 s_i=
 \frac{Power_i}{\sum_j Power_j}
 \]
 
-用于描述权力集中程度。
+The index describes the degree of power concentration.
 
 ---
 
 # 50. Coalition Stability
 
-基准：
+Baseline:
 
 \[
 S=
@@ -1109,7 +1093,7 @@ S=
 0.20H
 \]
 
-其中：
+where:
 
 ```text
 C = Cohesion
@@ -1119,17 +1103,17 @@ D = Defection cost
 H = Common threat
 ```
 
-此公式只是 baseline。
+This formula is only a baseline.
 
-正式研究中必须允许 Theory Module 替换。
+Formal research must allow a theory module to replace it.
 
 ---
 
 # 51. Leader Emergence
 
-Leader 不应作为固定字段直接指定。
+Leader should not be assigned directly as a fixed field.
 
-领导地位可以由：
+Leadership can arise jointly from:
 
 ```text
 network centrality
@@ -1140,13 +1124,11 @@ coalition coordination
 institutional position
 ```
 
-共同产生。
-
 ---
 
 # 52. Initial Sandbox
 
-v0.2 初始实验：
+The initial v0.2 experiment contains:
 
 ```text
 20 Individuals
@@ -1157,13 +1139,13 @@ v0.2 初始实验：
 1 Institution
 ```
 
-每个 Group：
+Each group contains:
 
 ```text
 5 Individuals
 ```
 
-代表关系：
+Representation:
 
 ```text
 G1 → R1
@@ -1172,14 +1154,14 @@ G3 → R3
 G4 → R4
 ```
 
-组织：
+Organizations:
 
 ```text
 Organization A: R1, R2
 Organization B: R3, R4
 ```
 
-Faction：
+Factions:
 
 ```text
 Faction A
@@ -1190,7 +1172,7 @@ Faction B
 
 # 53. Group Initial Preferences
 
-为了控制实验变量，初始群体可以存在不同偏好：
+To control experimental variables, the initial groups may differ in preference:
 
 ```text
 G1 → relatively high Security
@@ -1199,13 +1181,13 @@ G3 → relatively high Status
 G4 → relatively high Ideology
 ```
 
-这只是实验变量，不代表任何历史群体。
+These are experimental variables. They do not represent any historical group.
 
 ---
 
 # 54. Scenario Generator
 
-Scenario Generator 负责：
+The scenario generator is responsible for:
 
 ```text
 create population
@@ -1218,7 +1200,7 @@ create networks
 create initial resources
 ```
 
-必须使用：
+It must use:
 
 ```text
 seeded random
@@ -1228,13 +1210,13 @@ seeded random
 
 # 55. Randomness
 
-所有随机行为统一通过：
+Every random draw passes through:
 
 ```text
 SeededRandom
 ```
 
-禁止：
+The following are forbidden:
 
 ```text
 global random
@@ -1245,7 +1227,7 @@ untracked random
 
 # 56. Reproducibility
 
-每个实验必须记录：
+Every experiment must record:
 
 ```text
 experiment_id
@@ -1261,7 +1243,7 @@ final_state
 metrics
 ```
 
-相同：
+The same:
 
 ```text
 model_version
@@ -1272,7 +1254,7 @@ seed
 initial_state
 ```
 
-必须产生：
+must produce:
 
 ```text
 identical results
@@ -1282,7 +1264,7 @@ identical results
 
 # 57. Counterfactual Replay
 
-允许保持：
+It is permitted to hold fixed:
 
 ```text
 same seed
@@ -1290,13 +1272,13 @@ same initial state
 same random stream
 ```
 
-只修改：
+and change only:
 
 ```text
 one mechanism
 ```
 
-例如：
+For example:
 
 ```text
 Representation ON
@@ -1304,13 +1286,13 @@ vs
 Representation OFF
 ```
 
-用于机制识别。
+The comparison is used to identify a mechanism.
 
 ---
 
 # 58. Mechanism Ablation
 
-初始对照组：
+Initial control set:
 
 ```text
 Full Model
@@ -1321,7 +1303,7 @@ Full - Coalition
 Full - Network
 ```
 
-比较：
+Compare:
 
 ```text
 Δ Representation Drift
@@ -1362,14 +1344,14 @@ Network Centrality vs Political Power Concentration
 
 # 60. Batch Experiment
 
-初始批量实验：
+The initial batch design is:
 
 ```text
 100 ticks
 1000 seeds
 ```
 
-例如 5×5 参数扫描：
+For example, a 5×5 parameter sweep:
 
 ```text
 information_quality:
@@ -1389,7 +1371,7 @@ accountability:
 1.0
 ```
 
-总实验数量：
+Total:
 
 ```text
 25,000 simulations
@@ -1399,7 +1381,7 @@ accountability:
 
 # 61. Experiment Output
 
-每个实验至少输出：
+Each experiment writes at least:
 
 ```text
 final_state.json
@@ -1413,7 +1395,7 @@ experiment_config.json
 
 # 62. Event Log
 
-重大政治事件必须记录：
+A major political event must record:
 
 ```text
 tick
@@ -1426,7 +1408,7 @@ incentives
 state_change
 ```
 
-系统必须可以回答：
+The system must be able to answer:
 
 > What happened?
 
@@ -1444,7 +1426,7 @@ state_change
 
 # 63. No Hard-Coded Political Outcome
 
-禁止：
+The following are forbidden:
 
 ```text
 leader must emerge
@@ -1454,7 +1436,7 @@ dictatorship must emerge
 coalition must succeed
 ```
 
-系统只能定义：
+The system may define only:
 
 ```text
 rules
@@ -1465,37 +1447,37 @@ information
 institutions
 ```
 
-结果必须由模拟过程产生。
+Outcomes must be produced by the simulation.
 
 ---
 
 # 64. Historical Scenario Boundary
 
-历史人物、历史事件、历史制度只能属于：
+Historical persons, historical events, and historical institutions belong only in:
 
 ```text
 Scenario Layer
 ```
 
-不能进入：
+They must not enter:
 
 ```text
 Simulation Core
 ```
 
-例如：
+For example:
 
 ```text
 Young Stalin
 ```
 
-应被实现为 Scenario，而不是 Core Actor 类型。
+is implemented as a scenario, not as a core actor type.
 
 ---
 
 # 65. No Intrinsically Good or Bad Actors
 
-模型中：
+In the model:
 
 ```text
 Individual
@@ -1505,7 +1487,7 @@ Coalition
 Institution
 ```
 
-都不带：
+carry none of the built-in value labels:
 
 ```text
 good
@@ -1514,15 +1496,13 @@ hero
 villain
 ```
 
-等内置价值标签。
-
 ---
 
 # 66. LLM Boundary
 
-v0.2 不将 LLM 接入权威模拟循环。
+v0.2 does not place a language model inside the authoritative simulation loop.
 
-LLM 未来可以负责：
+A language model may later be responsible for:
 
 ```text
 reasoning
@@ -1534,7 +1514,7 @@ explanation
 theory-to-model translation
 ```
 
-但不能直接决定：
+It must not directly decide:
 
 ```text
 true state
@@ -1547,7 +1527,7 @@ political outcome
 
 # 67. Project Architecture
 
-推荐目录：
+Recommended directories:
 
 ```text
 political_sim/
@@ -1560,7 +1540,7 @@ political_sim/
 └── docs/
 ```
 
-建议：
+Suggested layout:
 
 ```text
 core/
@@ -1601,7 +1581,7 @@ docs/
 
 # 68. Implementation Rules for Cursor
 
-第一阶段必须：
+The first stage must be:
 
 ```text
 headless
@@ -1610,7 +1590,7 @@ testable
 observable
 ```
 
-禁止第一阶段加入：
+The first stage must not add:
 
 ```text
 UI
@@ -1621,19 +1601,19 @@ complex economics
 propaganda simulation
 ```
 
-除非其对核心机制验证必要。
+unless an item is necessary to validate a core mechanism.
 
 ---
 
 # 69. UI Boundary
 
-UI 不允许直接修改：
+A user interface must not modify:
 
 ```text
 WorldState
 ```
 
-所有修改必须通过：
+directly. Every modification passes through:
 
 ```text
 SimulationEngine
@@ -1644,7 +1624,7 @@ ActionResolver
 
 # 70. Acceptance Criteria
 
-v0.3 最低要求：
+The minimum requirements stated for v0.3 are:
 
 - 20 agents
 - 4 groups
@@ -1664,11 +1644,13 @@ v0.3 最低要求：
 - no historical characters required
 - no hard-coded political outcome
 
+These are design acceptance criteria. They are not a claim that the running prototype meets them.
+
 ---
 
 # 71. Unit Tests
 
-必须至少测试：
+At least the following must be tested:
 
 ```text
 Group aggregation
@@ -1688,7 +1670,7 @@ Event logging
 
 # 72. Debug Assertions
 
-运行时必须检查：
+Runtime checks must cover:
 
 ```text
 probability ∈ [0,1]
@@ -1705,7 +1687,7 @@ valid representation edges
 
 # 73. Versioning
 
-每次实验必须记录：
+Every experiment must record:
 
 ```text
 model_version
@@ -1714,13 +1696,13 @@ theory_version
 random_stream_version
 ```
 
-模型变化不能覆盖旧实验。
+A model change must not overwrite an older experiment.
 
 ---
 
 # 74. Future Theory Modules
 
-未来可加入：
+Candidates that may be added later:
 
 ```text
 Selectorate Theory
@@ -1734,13 +1716,13 @@ Collective Action Theory
 Elite Competition Models
 ```
 
-这些都是候选模块，而不是 v0.2 的硬编码政治真理。
+These are candidate modules. They are not political truths hard-coded into v0.2, and listing them does not schedule their implementation.
 
 ---
 
 # 75. Model Arena
 
-未来平台可以支持：
+A later platform could support:
 
 ```text
 same scenario
@@ -1749,7 +1731,7 @@ same seed
 different theory modules
 ```
 
-例如：
+For example:
 
 ```text
 Model A
@@ -1757,7 +1739,7 @@ Model B
 Model C
 ```
 
-比较：
+and compare:
 
 ```text
 power concentration
@@ -1766,15 +1748,15 @@ representation drift
 information distortion
 ```
 
-目的：
+The purpose is:
 
-> 比较模型，而不是宣布某一理论“正确”。
+> to compare models, not to declare one theory correct.
 
 ---
 
 # 76. Experiment Repository
 
-未来允许用户：
+A later system could allow a user to:
 
 ```text
 create experiment
@@ -1785,7 +1767,7 @@ share experiment
 compare results
 ```
 
-实验应包含：
+An experiment would contain:
 
 ```text
 scenario
@@ -1800,7 +1782,7 @@ results
 
 # 77. Scenario Builder
 
-普通用户可以：
+An ordinary user could:
 
 ```text
 create groups
@@ -1812,7 +1794,7 @@ set information quality
 set representation
 ```
 
-高级用户可以：
+An advanced user could:
 
 ```text
 edit formulas
@@ -1824,7 +1806,7 @@ modify rules
 
 # 78. Research Reproducibility
 
-每个公开实验必须允许：
+Every published experiment must allow:
 
 ```text
 download configuration
@@ -1834,7 +1816,7 @@ download theory version
 replay experiment
 ```
 
-目标：
+The objective is:
 
 > Another researcher should be able to reproduce the same simulation.
 
@@ -1842,63 +1824,63 @@ replay experiment
 
 # 79. Model Limitations
 
-v0.2 明确不声称：
+v0.2 does not claim:
 
 ```text
 real politics = this model
 ```
 
-它只是：
+It is only:
 
 ```text
 formal experimental environment
 ```
 
-因此：
+Therefore:
 
-- 参数不是现实世界常数。
-- 指标不是现实政治价值判断。
-- 模型结果不是历史事实。
-- 模型不能自动证明政治理论正确。
-- Scenario 与 empirical evidence 必须分开。
+- Parameters are not constants of the real world.
+- Indicators are not value judgments about real politics.
+- Model results are not historical facts.
+- The model cannot by itself prove a political theory correct.
+- A scenario and empirical evidence must be kept separate.
 
 ---
 
 # 80. First Research Hypotheses
 
-初始实验可以测试：
+The initial experiments could test:
 
 ### H1
 
-信息质量下降是否导致 Representation Drift 上升？
+Does lower information quality raise representation drift?
 
 ### H2
 
-Accountability 是否降低 Representation Drift？
+Does accountability reduce representation drift?
 
 ### H3
 
-组织能力是否放大群体的 Effective Political Power？
+Does organizational capacity amplify a group's effective political power?
 
 ### H4
 
-层级越深，Information Distortion 是否越高？
+Does a deeper hierarchy raise information distortion?
 
 ### H5
 
-Coalition Size 是否存在稳定性临界点？
+Does coalition size have a stability threshold?
 
 ### H6
 
-Network Centrality 是否导致 Political Power Concentration 上升？
+Does network centrality raise political power concentration?
 
-这些都是待验证假设，不是预设结论。
+These are hypotheses to be tested. They are not preset conclusions, and they are not scheduled experiments of the frozen prototype.
 
 ---
 
 # 81. Core Six Equations
 
-v0.2 最核心的六组关系：
+The six central relations of v0.2:
 
 ### Group Interest
 
@@ -1955,7 +1937,7 @@ Institutional
 
 # 82. Non-Goals for v0.3
 
-以下暂不进入核心：
+The following do not enter the core at this stage:
 
 ```text
 full historical simulation
@@ -1969,13 +1951,13 @@ elections
 constitutional design editor
 ```
 
-除非某一项成为核心机制实验所必需。
+unless one of them becomes necessary for a core-mechanism experiment.
 
 ---
 
 # 83. Cursor Instruction
 
-Cursor 开发时必须遵守：
+Development must observe:
 
 ```text
 Do not bypass SimulationEngine.
@@ -2001,7 +1983,7 @@ Every experiment must be reproducible.
 
 # 84. Definition of Done — v0.3
 
-当以下条件全部满足：
+The design checklist for a v0.3 core loop is:
 
 ```text
 [ ] Core entities implemented
@@ -2023,13 +2005,13 @@ Every experiment must be reproducible.
 [ ] headless experiment runs
 ```
 
-即完成 v0.3 核心闭环。
+Satisfying every item would complete the v0.3 core loop as defined here. `MODEL_VERSION = "0.2"` in the package does not mean this checklist is complete. Several items above have no execution body in the frozen prototype.
 
 ---
 
 # 85. Development Principle
 
-开发过程中始终保持：
+Development keeps this order:
 
 ```text
 Model first
@@ -2038,35 +2020,37 @@ UI third
 Presentation last
 ```
 
-不要因为 UI 需求破坏核心模型。
+A user-interface request must not break the core model.
 
-不要因为历史叙事破坏可重复性。
+A historical narrative must not break reproducibility.
 
-不要因为游戏性破坏理论可替换性。
+Gameplay must not break the replaceability of theory.
 
 ---
 
 # 86. Final Principle
 
-本项目最终不是：
+The project is not, finally:
 
-> “模拟某一个政治人物。”
+> “a simulation of one political figure.”
 
-而是：
+It is:
 
-> “建立一个可以模拟、比较、复现和解释政治机制的实验平台。”
+> “an experimental platform on which political mechanisms can be simulated, compared, reproduced, and explained.”
 
-平台的核心价值不是告诉用户：
+The core value of the platform is not to tell a user:
 
 ```text
 What politics is.
 ```
 
-而是允许用户实验：
+It is to let a user experiment with:
 
 ```text
 What happens if...
 ```
+
+The sentence above is the design aim of this specification. The published prototype is the frozen causal laboratory described in `README.md`, not this platform.
 
 ---
 
@@ -2129,9 +2113,11 @@ political_sim/
 
 # Appendix B — Immediate Implementation Order
 
+These labels are the original design sequence. They are not the implemented PR-1 through PR-12 freeze. Do not read a design item below as a claim that the corresponding mechanism runs.
+
 ## PR-1
 
-Data model：
+Data model:
 
 ```text
 Individual
@@ -2148,7 +2134,7 @@ WorldState
 
 ## PR-2
 
-Simulation infrastructure：
+Simulation infrastructure:
 
 ```text
 SimulationEngine
@@ -2160,7 +2146,7 @@ EventSystem
 
 ## PR-3
 
-Information：
+Information:
 
 ```text
 InformationSystem
@@ -2169,7 +2155,7 @@ BeliefSystem
 
 ## PR-4
 
-Representation：
+Representation:
 
 ```text
 Group aggregation
@@ -2180,7 +2166,7 @@ Representation Drift
 
 ## PR-5
 
-Political organization：
+Political organization:
 
 ```text
 Faction
@@ -2189,7 +2175,7 @@ Coalition
 
 ## PR-6
 
-Power and metrics：
+Power and metrics:
 
 ```text
 PowerSystem
@@ -2201,7 +2187,7 @@ CSV output
 
 ## PR-7
 
-Experiments：
+Experiments:
 
 ```text
 ExperimentConfig
@@ -2213,7 +2199,7 @@ BatchRunner
 
 # Appendix C — First Milestone
 
-第一阶段只需要做到：
+The first design stage needs only:
 
 ```text
 20 individuals
@@ -2237,13 +2223,13 @@ metrics
 event log
 ```
 
-如果这个闭环能够稳定运行，就已经具备：
+If that loop runs stably, the design then has:
 
 ```text
 Political Simulation Core
 ```
 
-之后再逐步增加：
+Only after that would the design add, in order:
 
 ```text
 network
@@ -2257,11 +2243,10 @@ LLM agents
 historical scenarios
 ```
 
-而不是反过来。
+and not the reverse. That sequence is a design note. It is not a development schedule for the frozen prototype.
 
 ---
 
 ## Final Development Rule
 
-> **先让一个简单政治系统能够稳定、可重复、可解释地运行，再让它变复杂。**
-
+> **First make a simple political system run in a stable, repeatable, and explainable way. Only then make it more complex.**

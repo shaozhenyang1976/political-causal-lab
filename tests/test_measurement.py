@@ -1,4 +1,4 @@
-"""因果链测量。只读一次运行的结果，用来分开现实、信息、信念和意图。"""
+"""Causal-chain measurement. Reads one finished run and separates reality, information, belief, and intent."""
 
 from __future__ import annotations
 

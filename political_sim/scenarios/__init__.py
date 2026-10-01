@@ -1,1 +1,1 @@
-"""场景数据。本步只包含沙盘生成器。"""
+"""Scenario data. This package contains only the sandbox generator."""

@@ -1,4 +1,4 @@
-"""PR-6：生成误差和信息质量是两个独立步骤。"""
+"""PR-6: generation error and information quality are two separate steps."""
 
 from __future__ import annotations
 

@@ -1,1 +1,1 @@
-"""目录占位。本步不实现理论模块。"""
+"""Package placeholder. Theory modules are not implemented."""
